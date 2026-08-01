@@ -1,3 +1,9 @@
+#
+#    Copyright (c) 2026 Rich Bell <bellrichm@gmail.com>
+#
+#    See the file LICENSE.txt for your full rights.
+
+import copy
 import time
 
 import weewx
@@ -10,10 +16,13 @@ from typing import Dict
 class MQTTLoopData(LoopData):
     # def __init__(self, engine, config_dict):
     def __init__(self, logger, name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
+
+        self.enabled = plugin_dict.get('enabled', True)
+
         super().__init__(weewx_dict['engine'], weewx_dict['config_dict'])
 
-        loop_processor = LoopProcessor(self.cfg)
-        loop_processor.accumulators = self.setup_accumulators()
+        self.loop_processor = LoopProcessor(self.cfg)
+        self.loop_processor.accumulators = self.setup_accumulators()
 
     def pre_loop(self, event):
         return
@@ -90,5 +99,41 @@ class MQTTLoopData(LoopData):
 
     def get_callbacks(self):
         """ The callbacks. """
+        if not self.enabled:
+            return []
 
-        return []
+        return [
+            {
+                'update_record': {
+                    'timing': 'immediate',
+                    'callback': self.update_record
+                },
+            },
+        ]
+
+    def update_record(self, _mqtt_client, _topic, data, _units, _qos, _retain):
+        """ Run code when MQTT record is updated. """
+
+        pkt = copy.deepcopy(data)
+        pkt['interval']     = self.cfg.loop_frequency / 60.0
+
+        try:
+            windrun_val = weewx.wxxtypes.WXXTypes.calc_windrun('windrun', pkt)
+            pkt['windrun'] = windrun_val[0]
+        except weewx.CannotCalculate:
+            #log.info('Cannot calculate windrun.')
+            pass
+
+        try:
+            beaufort_val = weewx.wxxtypes.WXXTypes.calc_beaufort('beaufort', pkt)
+            pkt['beaufort'] = beaufort_val[0]
+        except weewx.CannotCalculate:
+            #log.info('Cannot calculate beaufort.')
+            pass
+
+        # Process new packet.
+        loopdata_pkt = LoopProcessor.generate_loopdata_dictionary(
+            pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
+            self.loop_processor.station_eval)
+
+        print(loopdata_pkt)
