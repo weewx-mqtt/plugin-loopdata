@@ -11,13 +11,14 @@ from typing import Dict
 import weewx
 import weeutil
 
-from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor
+from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
 
-class log:
+class log:  # pylint: disable=invalid-name
     """ For compatability and maintability withh weewx-loopdata. """
     info = None
 
 class MQTTLoopData(LoopData):
+    """ Create loop data for MQTTPublish. """
     # def __init__(self, engine, config_dict):
     def __init__(self, logger, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
@@ -31,13 +32,16 @@ class MQTTLoopData(LoopData):
         self.loop_processor.accumulators = self.setup_accumulators()
 
     def pre_loop(self, _event):
+        """ Data is no longer 'retrieved' from WeeWX pipeline. """
         return
 
     def new_loop(self, _event):
+        """ Data is no longer 'retrieved' from WeeWX pipeline. """
         return
 
     def setup_accumulators(self):
         """ This code is 'lifted' from new_loop. """
+        # pylint: disable=protected-access
         binder = weewx.manager.DBBinder(self.config_dict)
         binding = self.config_dict.get('StdReport')['data_binding']
         dbm = binder.get_manager(binding)
