@@ -13,6 +13,9 @@ from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor
 
 from typing import Dict
 
+class log:
+    info = None
+
 class MQTTLoopData(LoopData):
     # def __init__(self, engine, config_dict):
     def __init__(self, logger, name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
@@ -23,6 +26,8 @@ class MQTTLoopData(LoopData):
 
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
+        log.info = logger.loginf
+
 
     def pre_loop(self, event):
         return
@@ -97,6 +102,28 @@ class MQTTLoopData(LoopData):
             windrose_span       = windrose_span_accums,
             windrose_continuous = windrose_continuous_accums))
 
+    def update_packet(self, pkt):
+        pkt['interval']     = self.cfg.loop_frequency / 60.0
+
+        try:
+            windrun_val = weewx.wxxtypes.WXXTypes.calc_windrun('windrun', pkt)
+            pkt['windrun'] = windrun_val[0]
+        except weewx.CannotCalculate:
+            log.info('Cannot calculate windrun.')
+            pass
+
+        try:
+            beaufort_val = weewx.wxxtypes.WXXTypes.calc_beaufort('beaufort', pkt)
+            pkt['beaufort'] = beaufort_val[0]
+        except weewx.CannotCalculate:
+            log.info('Cannot calculate beaufort.')
+            pass
+
+        # Process new packet.
+        return LoopProcessor.generate_loopdata_dictionary(
+            pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
+            self.loop_processor.station_eval)
+
     def get_callbacks(self):
         """ The callbacks. """
         if not self.enabled:
@@ -117,23 +144,6 @@ class MQTTLoopData(LoopData):
         pkt = copy.deepcopy(data)
         pkt['interval']     = self.cfg.loop_frequency / 60.0
 
-        try:
-            windrun_val = weewx.wxxtypes.WXXTypes.calc_windrun('windrun', pkt)
-            pkt['windrun'] = windrun_val[0]
-        except weewx.CannotCalculate:
-            #log.info('Cannot calculate windrun.')
-            pass
-
-        try:
-            beaufort_val = weewx.wxxtypes.WXXTypes.calc_beaufort('beaufort', pkt)
-            pkt['beaufort'] = beaufort_val[0]
-        except weewx.CannotCalculate:
-            #log.info('Cannot calculate beaufort.')
-            pass
-
-        # Process new packet.
-        loopdata_pkt = LoopProcessor.generate_loopdata_dictionary(
-            pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
-            self.loop_processor.station_eval)
+        loopdata_pkt = self.update_packet(pkt)
 
         print(loopdata_pkt)
