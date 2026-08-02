@@ -24,6 +24,7 @@ class MQTTLoopData(LoopData):
 
         self.enabled = plugin_dict.get('enabled', True)
         log.info = logger.loginf
+        self.simple_cache = {}
 
         super().__init__(weewx_dict['engine'], weewx_dict['config_dict'])
 
@@ -127,7 +128,7 @@ class MQTTLoopData(LoopData):
             pass
 
         # Process new packet.
-        return LoopProcessor. data_dictionary(
+        return LoopProcessor.generate_loopdata_dictionary(
             pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
             self.loop_processor.station_eval)
 
@@ -149,7 +150,8 @@ class MQTTLoopData(LoopData):
         """ Run code when MQTT record is updated. """
         pkt = copy.deepcopy(data)
         pkt['interval']     = self.cfg.loop_frequency / 60.0
+        self.simple_cache.update(pkt)
 
-        loopdata_pkt = self.update_packet(pkt)
+        loopdata_pkt = self.update_packet(self.simple_cache)
 
         print(loopdata_pkt)
