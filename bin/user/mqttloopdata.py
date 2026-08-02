@@ -45,8 +45,9 @@ class MQTTLoopData(LoopData):
         binder = weewx.manager.DBBinder(self.config_dict)
         binding = self.config_dict.get('StdReport')['data_binding']
         dbm = binder.get_manager(binding)
+        # ToDo: investigate what pkt_time is used for on initialization
         # pkt_time = to_int(event.packet['dateTime'])
-        pkt_time = time.time()
+        pkt_time = int(time.time())
 
         # Init day accumulator from day_summary
         day_summary = dbm._get_day_summary(time.time())
