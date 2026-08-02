@@ -13,8 +13,8 @@ import weeutil
 
 from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor
 
-
 class log:
+    """ For compatability and maintability withh weewx-loopdata. """
     info = None
 
 class MQTTLoopData(LoopData):
@@ -22,12 +22,13 @@ class MQTTLoopData(LoopData):
     def __init__(self, logger, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
         self.enabled = plugin_dict.get('enabled', True)
+        log.info = logger.loginf
 
         super().__init__(weewx_dict['engine'], weewx_dict['config_dict'])
 
+        # A separare thread is no longer needed to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
-        log.info = logger.loginf
 
     def pre_loop(self, _event):
         return
