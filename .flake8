@@ -2,6 +2,7 @@
 max-line-length = 133
 
 # E302, E305, https://peps.python.org/pep-0008/#blank-lines
-ignore = E302,E305,W504,E402,E125
+# E221, E226, E251, E275 due to code copied from weewx-loopdata
+ignore = E302,E305,W504,E402,E125,E221,E226,E251,E275
 
 exclude = weewx

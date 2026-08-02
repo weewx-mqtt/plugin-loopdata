@@ -6,19 +6,20 @@
 import copy
 import time
 
+from typing import Dict
+
 import weewx
 import weeutil
 
 from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor
 
-from typing import Dict
 
 class log:
     info = None
 
 class MQTTLoopData(LoopData):
     # def __init__(self, engine, config_dict):
-    def __init__(self, logger, name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
+    def __init__(self, logger, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
         self.enabled = plugin_dict.get('enabled', True)
 
@@ -28,14 +29,14 @@ class MQTTLoopData(LoopData):
         self.loop_processor.accumulators = self.setup_accumulators()
         log.info = logger.loginf
 
-
-    def pre_loop(self, event):
+    def pre_loop(self, _event):
         return
 
-    def new_loop(self, event):
+    def new_loop(self, _event):
         return
 
     def setup_accumulators(self):
+        """ This code is 'lifted' from new_loop. """
         binder = weewx.manager.DBBinder(self.config_dict)
         binding = self.config_dict.get('StdReport')['data_binding']
         dbm = binder.get_manager(binding)
@@ -103,8 +104,8 @@ class MQTTLoopData(LoopData):
             windrose_continuous = windrose_continuous_accums))
 
     def update_packet(self, pkt):
-        pkt['interval']     = self.cfg.loop_frequency / 60.0
-
+        """ This code is 'lifted from 'process_queue. """
+        # pylint: disable=unnecessary-pass, not-callable
         try:
             windrun_val = weewx.wxxtypes.WXXTypes.calc_windrun('windrun', pkt)
             pkt['windrun'] = windrun_val[0]
@@ -120,7 +121,7 @@ class MQTTLoopData(LoopData):
             pass
 
         # Process new packet.
-        return LoopProcessor.generate_loopdata_dictionary(
+        return LoopProcessor. data_dictionary(
             pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
             self.loop_processor.station_eval)
 
@@ -140,7 +141,6 @@ class MQTTLoopData(LoopData):
 
     def update_record(self, _mqtt_client, _topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
-
         pkt = copy.deepcopy(data)
         pkt['interval']     = self.cfg.loop_frequency / 60.0
 
