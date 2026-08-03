@@ -26,7 +26,11 @@ class MQTTLoopData(LoopData):
         log.info = logger.loginf
         self.simple_cache = {}
 
-        super().__init__(weewx_dict['engine'], weewx_dict['config_dict'])
+        config_dict = weeutil.config.deep_copy(weewx_dict['config_dict'])
+        config_dict['LoopData'] = {}
+        config_dict['LoopData'] = weeutil.config.deep_copy(config_dict['MQTTLoopData'])
+
+        super().__init__(weewx_dict['engine'], config_dict)
 
         # A separare thread is no longer needed to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
