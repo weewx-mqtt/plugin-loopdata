@@ -23,6 +23,7 @@ class MQTTLoopData(LoopData):
     def __init__(self, logger, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
         self.enabled = plugin_dict.get('enabled', True)
+        self.topics = plugin_dict['topics']
         log.info = logger.loginf
         self.simple_cache = {}
 
@@ -150,12 +151,13 @@ class MQTTLoopData(LoopData):
             },
         ]
 
-    def update_record(self, _mqtt_client, _topic, data, _units, _qos, _retain):
+    def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
-        pkt = copy.deepcopy(data)
-        pkt['interval']     = self.cfg.loop_frequency / 60.0
-        self.simple_cache.update(pkt)
+        if topic in self.topics:
+            pkt = copy.deepcopy(data)
+            pkt['interval']     = self.cfg.loop_frequency / 60.0
+            self.simple_cache.update(pkt)
 
-        loopdata_pkt = self.update_packet(self.simple_cache)
+            loopdata_pkt = self.update_packet(self.simple_cache)
 
-        print(loopdata_pkt)
+            print(loopdata_pkt)
