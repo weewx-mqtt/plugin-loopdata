@@ -159,5 +159,4 @@ class MQTTLoopData(LoopData):
             self.simple_cache.update(pkt)
 
             loopdata_pkt = self.update_packet(self.simple_cache)
-
-            print(loopdata_pkt)
+            data.update(loopdata_pkt)
