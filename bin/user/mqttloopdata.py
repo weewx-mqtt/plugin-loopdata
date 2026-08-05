@@ -22,6 +22,7 @@ class MQTTLoopData(LoopData):
     # def __init__(self, engine, config_dict):
     def __init__(self, logger, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
+        # ToDo: Currently only support publishing json - need to add a check
         self.enabled = plugin_dict.get('enabled', True)
         self.topics = plugin_dict['topics']
         log.info = logger.loginf
