@@ -1,0 +1,23 @@
+name: Run analyze and test matrix
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  analyze-test:
+    uses: weewx-extensions/development-tools/.github/workflows/analyze-test-matrix.yml@v5
+    with:
+      module-name: 'mqttloopdata'
+      #pip-list: 'paho-mqtt'
+      #package-list: 'mosquitto'
+      unit-test: true
+      function-test: false
+      integration-test: false
+      e2e-test: false
+      #flake-extra-parms: '--exclude tests'
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      CODACY_API_TOKEN: ${{ secrets.CODACY_API_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

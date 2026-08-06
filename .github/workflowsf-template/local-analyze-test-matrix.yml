@@ -1,0 +1,22 @@
+name: Run local analyze and test matrix
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analyze-test:
+    # This will not work on GitHub, but works with ACT.
+    # This allows one to test the workflow prior to committing and creating a release
+    uses: ./../../weewx-extensions/development-tools/.github/workflows/analyze-test-matrix.yml
+    with:
+      module-name: 'mqttloopdata'
+      #pip-list: 'paho-mqtt'
+      #package-list: 'mosquitto'
+      unit-test: true
+      function-test: false
+      integration-test: false
+      e2e-test: false
+      #flake-extra-parms: '--exclude tests'
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
