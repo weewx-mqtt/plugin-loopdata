@@ -13,6 +13,8 @@ import weeutil
 
 from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
 
+VERSION = "0.1.0-rc01"
+
 class log:  # pylint: disable=invalid-name
     """ For compatability and maintability withh weewx-loopdata. """
     info = None
