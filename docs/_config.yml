@@ -18,14 +18,14 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: REPLACE_ME
+title: MQTTLoopData
 #email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   REPLACE_ME
   REPLACE_ME
   REPLACE_ME
-baseurl: "/REPLACE_ME" # the subpath of your site, e.g. /name-of-repository
-url: "https://REPLACE_ME" # the base hostname & protocol for your site, e.g. https://name-of-org.github.io
+baseurl: "/plugin-loopdata" # the subpath of your site, e.g. /name-of-repository
+url: "https://weewx-mqtt.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
 #github_username:  jekyll
 remote_theme: just-the-docs/just-the-docs
