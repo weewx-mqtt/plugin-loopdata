@@ -10,9 +10,16 @@
 import unittest
 import mock
 
-import user.tests.helpers
+import importlib
+import pathlib
 
 import user.mqttloopdata
+
+# Due to importing user.loopdata, this project has a different 'user' directory (see .env).
+# Therefore will dynamically load 'user.helpers'.
+helpers_spec = importlib.util.spec_from_file_location("helpers", pathlib.Path(__file__).parent / '../helpers.py')
+helpers = importlib.util.module_from_spec(helpers_spec)
+helpers_spec.loader.exec_module(helpers)
 
 class TestUnitSimpleClass(unittest.TestCase):
     def test_test(self):
@@ -21,7 +28,8 @@ class TestUnitSimpleClass(unittest.TestCase):
             'enabled': False,
         }
 
-        SUT = user.mqttloopdata.MQTTLoopData(mock_logger, None, config_dict, None, None, None)
+        user.mqttloopdata.MQTTLoopData(mock_logger, None, config_dict, None, None, None)
 
 if __name__ == '__main__':
-    user.tests.helpers.run_tests()
+
+    helpers.run_tests()
