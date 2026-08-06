@@ -26,6 +26,11 @@ class MQTTLoopData(LoopData):
 
         # ToDo: Currently only support publishing json - need to add a check
         self.enabled = plugin_dict.get('enabled', True)
+        self.logger = logger
+        if not self.enabled:
+            self.logger("Not enabled, exiting")
+            return
+
         self.topics = plugin_dict['topics']
         log.info = logger.loginf
         self.simple_cache = {}
