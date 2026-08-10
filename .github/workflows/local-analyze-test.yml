@@ -7,7 +7,9 @@ jobs:
   analyze-test:
     # This will not work on GitHub, but works with ACT.
     # This allows one to test the workflow prior to committing and creating a release
-    uses: ./../../weewx-extensions/development-tools/.github/workflows/analyze-test.yml
+    # Even though this won't run on github, it still parses the uses statement
+    uses: weewx-extensions/development-tools/.github/workflows/analyze-test.yml@master
+    # uses: ./../../weewx-extensions/development-tools/.github/workflows/analyze-test.yml
     with:
       module-name: 'mqttloopdata'
       #pip-list: 'paho-mqtt'
