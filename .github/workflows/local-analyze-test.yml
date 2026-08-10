@@ -12,9 +12,9 @@ jobs:
       module-name: 'mqttloopdata'
       #pip-list: 'paho-mqtt'
       #package-list: 'mosquitto'
-      unit-test: true
+      unit-test: false
       function-test: false
-      integration-test: false
+      integration-test: true
       e2e-test: false
       #flake-extra-parms: '--exclude tests'
     secrets:
