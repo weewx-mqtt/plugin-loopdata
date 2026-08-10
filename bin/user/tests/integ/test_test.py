@@ -10,6 +10,7 @@
 import unittest
 import mock
 
+import configobj
 import importlib
 import pathlib
 
@@ -24,13 +25,51 @@ helpers_spec.loader.exec_module(helpers)
 class TestUnitSimpleClass(unittest.TestCase):
     def test_test(self):
         mock_logger = mock.Mock()
-        config_dict = {
-            'enabled': False,
+        mock_engine = mock.Mock()
+        mock_engine.stn_info.altitude_vt = (0, 'meter')
+        plugin_dict = {
+            'enabled': True,
+            'topics': {},
         }
 
-        user.mqttloopdata.MQTTLoopData(mock_logger, None, config_dict, None, None, None)
+        weewx_dict = {
+            'engine': mock_engine,
+            'config_dict': {
+                'WEEWX_ROOT': '',
+                'DataBindings': {
+                    'wx_binding': {},
+                },
+                'Databases': {
+                    'archive_sqlite': {
+                        'database_type': 'SQLite',
+                        'database_name': 'integration.sdb',
+                    },
+                },
+                'DatabaseTypes': {
+                    'SQLite': {
+                        'driver': 'weedb.sqlite',
+                        # Unfortunately, in memory DB will not work
+                        # 'database_name': ':memory:',
+                        'SQLITE_ROOT': 'bin/user/tests/integ/data',
+                    },
+                },
+                'StdConvert': {},
+                'StdReport': {
+                    'SKIN_ROOT': '',
+                    'data_binding': 'wx_binding',
+                    'LoopDataReport': {},
+                },
+                'MQTTLoopData': {
+                    'RsyncSpec': {
+                        'enable': False,
+                        'compress': False,
+                        'log_success': False,
+                    },
+                },
+            },
+        }
+
+        user.mqttloopdata.MQTTLoopData(mock_logger, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
 
 if __name__ == '__main__':
-
     helpers.run_tests()
- 
