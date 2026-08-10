@@ -68,7 +68,7 @@ class TestUnitSimpleClass(unittest.TestCase):
                 },
             },
         }
-
+  
         user.mqttloopdata.MQTTLoopData(mock_logger, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
 
 if __name__ == '__main__':
