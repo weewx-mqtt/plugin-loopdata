@@ -13,6 +13,7 @@ import mock
 import configobj
 import importlib
 import pathlib
+import time
 
 import user.mqttloopdata
 
@@ -65,11 +66,38 @@ class TestUnitSimpleClass(unittest.TestCase):
                         'compress': False,
                         'log_success': False,
                     },
+                    'Include': {
+                        'fields': ['current.outTemp', 'day.outTemp.min.raw', 'day.outTemp.max.formatted'],
+                    },
+                    # fields = current.outHumidity, current.outHumidity.raw, day.outHumidity.min.raw, day.outHumidity.max.raw, 
+                    # current.windSpeed, current.windSpeed.raw, current.windDir.raw, current.windDir.ordinal_compass, 
+                    # 10m.windGust.max, 10m.wind.gustdir.raw, 10m.wind.gustdir.ordinal_compass, 
+                    # current.barometer, current.barometer.raw, trend.barometer.raw, trend.barometer.desc, 
+                    # current.rainRate, current.rainRate.raw, day.rain.sum, day.rain.sum.raw, day.rainRate.max, day.rainRate.max.raw, 
+                    # current.dewpoint, current.dewpoint.raw, day.dewpoint.min.raw, day.dewpoint.max.raw, day.dewpoint.min.formatted, day.dewpoint.max.formatted, 
+                    # current.appTemp, current.appTemp.raw, day.appTemp.min.raw, day.appTemp.max.raw, day.appTemp.min.formatted, day.appTemp.max.formatted, 
+                    # current.UV, current.UV.raw, day.UV.max, 
+                    # current.radiation, current.radiation.raw, day.radiation.max, 
+                    # current.pm2_5, current.pm2_5_aqi.raw, current.pm2_5_aqi.formatted, 
+                    # day.windrose.banded, day.windrose.calm, 
+                    # unit.label.outTemp, unit.label.barometer, unit.label.rain, unit.label.rainRate, unit.label.windSpeed
                 },
             },
         }
-  
-        user.mqttloopdata.MQTTLoopData(mock_logger, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
+
+        SUT = user.mqttloopdata.MQTTLoopData(mock_logger, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
+        pkt = {
+            'dateTime': time.time(),
+            'usUnits': 1,
+            'interval': 2 / 60,
+            'windSpeed': 5,
+            'outTemp': 79.812,
+        }
+        loopdata_pkt = SUT.update_packet(pkt)
+
+        print(pkt)
+        print(loopdata_pkt)
+        print("done")
 
 if __name__ == '__main__':
     helpers.run_tests()
