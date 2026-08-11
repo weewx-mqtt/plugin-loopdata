@@ -16,6 +16,10 @@ jobs:
       function-test: false
       integration-test: true
       e2e-test: false
+      coveralls-upload: false
+      codecov-upload: false
+      codacy-upload: false
+      sonar-scan: false
       #flake-extra-parms: '--exclude tests'
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
