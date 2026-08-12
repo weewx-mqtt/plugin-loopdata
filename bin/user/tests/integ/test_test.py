@@ -67,20 +67,22 @@ class TestUnitSimpleClass(unittest.TestCase):
                         'log_success': False,
                     },
                     'Include': {
-                        'fields': ['current.outTemp', 'day.outTemp.min.raw', 'day.outTemp.max.formatted'],
+                        # windrose.bands appears on its own whenever any windrose field is configured,
+                        # holding the band edges in the target report’s windSpeed unit
+                        # so a legend never hardcodes them. It is the one key you get without asking.
+                        'fields': ['current.outTemp', 'day.outTemp.min.raw', 'day.outTemp.max.formatted',
+                                   'current.barometer', 'current.barometer.raw', 'trend.barometer.raw', 'trend.barometer.desc',
+                                   'year.rainRate', 'year.rainRate.raw', 'year.rain.sum', 'year.rain.sum.raw', 'year.rainRate.max', 'year.rainRate.max.raw',
+                                    'current.windSpeed', 'current.windSpeed.raw', 'current.windDir.raw', 'current.windDir.ordinal_compass',
+                                    '10m.windGust.max', '10m.wind.gustdir.raw', '10m.wind.gustdir.ordinal_compass',
+                                    'week.windrose.banded', 'week.windrose.calm',
+                                    'month.windrose.sum', 'month.windrose.time',
+                                    'almanac.sunrise', 'almanac.moon_phase',
+                                    'almanac(horizon=-6).sun(use_center=1).rise', 'almanac(horizon=-6).sun(use_center=1).set',
+                                    # Currently mock is getting in the way of these
+                                    # 'station.uptime.long_form()', 'station.os_uptime.long_form()', 'station.version', 'station.python_version', 'station.hardware', 'station.location', 'station.altitude', 'station.latitude',
+                                   ],
                     },
-                    # fields = current.outHumidity, current.outHumidity.raw, day.outHumidity.min.raw, day.outHumidity.max.raw, 
-                    # current.windSpeed, current.windSpeed.raw, current.windDir.raw, current.windDir.ordinal_compass, 
-                    # 10m.windGust.max, 10m.wind.gustdir.raw, 10m.wind.gustdir.ordinal_compass, 
-                    # current.barometer, current.barometer.raw, trend.barometer.raw, trend.barometer.desc, 
-                    # current.rainRate, current.rainRate.raw, day.rain.sum, day.rain.sum.raw, day.rainRate.max, day.rainRate.max.raw, 
-                    # current.dewpoint, current.dewpoint.raw, day.dewpoint.min.raw, day.dewpoint.max.raw, day.dewpoint.min.formatted, day.dewpoint.max.formatted, 
-                    # current.appTemp, current.appTemp.raw, day.appTemp.min.raw, day.appTemp.max.raw, day.appTemp.min.formatted, day.appTemp.max.formatted, 
-                    # current.UV, current.UV.raw, day.UV.max, 
-                    # current.radiation, current.radiation.raw, day.radiation.max, 
-                    # current.pm2_5, current.pm2_5_aqi.raw, current.pm2_5_aqi.formatted, 
-                    # day.windrose.banded, day.windrose.calm, 
-                    # unit.label.outTemp, unit.label.barometer, unit.label.rain, unit.label.rainRate, unit.label.windSpeed
                 },
             },
         }
@@ -91,12 +93,53 @@ class TestUnitSimpleClass(unittest.TestCase):
             'usUnits': 1,
             'interval': 2 / 60,
             'windSpeed': 5,
+            'windDir': 180,
             'outTemp': 79.812,
+            'barometer': 5,
+            'rain': 3
         }
         loopdata_pkt = SUT.update_packet(pkt)
 
+        expected_loopdata_pkt = {
+            'current.windSpeed': '5 mph',
+            'current.windDir.raw': 180,
+            '10m.wind.gustdir.raw': 180.0,
+            'year.rain.sum': '3.00 in',
+            'week.windrose.calm': 0.0,
+            'current.windDir.ordinal_compass': 'S',
+            'day.outTemp.max.formatted': '79.8',
+            'year.rain.sum.raw': 3.0,
+            '10m.wind.gustdir.ordinal_compass': 'S',
+            'current.barometer': '5.000 inHg',
+            'current.windSpeed.raw': 5,
+            'month.windrose.sum': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.002777777777777778, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            'day.outTemp.min.raw': 79.812, 
+            'week.windrose.banded': [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 2.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
+            'current.outTemp': '79.8°F',
+            'current.barometer.raw': 5,
+            'month.windrose.time': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            'windrose.bands': [1.1, 4.7, 8.1, 12.8, 19.7, 24.8],
+            'almanac.moon_phase': 'New'}
+
         print(pkt)
+        print('')
         print(loopdata_pkt)
+        self.assertDictEqual(loopdata_pkt, expected_loopdata_pkt)
         print("done")
 
 if __name__ == '__main__':
