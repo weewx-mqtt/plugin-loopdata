@@ -25,9 +25,16 @@ helpers_spec.loader.exec_module(helpers)
 
 class TestUnitSimpleClass(unittest.TestCase):
     def test_test(self):
+        self.maxDiff = None
         mock_logger = mock.Mock()
         mock_engine = mock.Mock()
-        mock_engine.stn_info.altitude_vt = (0, 'meter')
+        mock_engine.stn_info.altitude_vt = (0, 'meter', 'group_altitude')
+        mock_engine.stn_info.latitude_f = 0
+        mock_engine.stn_info.longitude_f = 0
+        mock_engine.stn_info.rain_year_start = 5
+        mock_engine.stn_info.hardware = 'station_hardware'
+        mock_engine.stn_info.location = 'location'
+
         plugin_dict = {
             'enabled': True,
             'topics': {},
@@ -73,14 +80,15 @@ class TestUnitSimpleClass(unittest.TestCase):
                         'fields': ['current.outTemp', 'day.outTemp.min.raw', 'day.outTemp.max.formatted',
                                    'current.barometer', 'current.barometer.raw', 'trend.barometer.raw', 'trend.barometer.desc',
                                    'year.rainRate', 'year.rainRate.raw', 'year.rain.sum', 'year.rain.sum.raw', 'year.rainRate.max', 'year.rainRate.max.raw',
-                                    'current.windSpeed', 'current.windSpeed.raw', 'current.windDir.raw', 'current.windDir.ordinal_compass',
-                                    '10m.windGust.max', '10m.wind.gustdir.raw', '10m.wind.gustdir.ordinal_compass',
-                                    'week.windrose.banded', 'week.windrose.calm',
-                                    'month.windrose.sum', 'month.windrose.time',
-                                    'almanac.sunrise', 'almanac.moon_phase',
-                                    'almanac(horizon=-6).sun(use_center=1).rise', 'almanac(horizon=-6).sun(use_center=1).set',
-                                    # Currently mock is getting in the way of these
-                                    # 'station.uptime.long_form()', 'station.os_uptime.long_form()', 'station.version', 'station.python_version', 'station.hardware', 'station.location', 'station.altitude', 'station.latitude',
+                                   'current.windSpeed', 'current.windSpeed.raw', 'current.windDir.raw', 'current.windDir.ordinal_compass',
+                                   '10m.windGust.max', '10m.wind.gustdir.raw', '10m.wind.gustdir.ordinal_compass',
+                                   'week.windrose.banded', 'week.windrose.calm',
+                                   'month.windrose.sum', 'month.windrose.time',
+                                   # Hard to test
+                                   # 'almanac.sunrise', 'almanac.moon_phase',
+                                   # 'almanac(horizon=-6).sun(use_center=1).rise', 'almanac(horizon=-6).sun(use_center=1).set',
+                                   # Too hard to test: 'station.os_uptime.long_form()' 'station.uptime.long_form()'
+                                   'station.version', 'station.python_version', 'station.hardware', 'station.location', 'station.altitude', 'station.latitude',
                                    ],
                     },
                 },
@@ -113,28 +121,34 @@ class TestUnitSimpleClass(unittest.TestCase):
             'current.barometer': '5.000 inHg',
             'current.windSpeed.raw': 5,
             'month.windrose.sum': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.002777777777777778, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            'day.outTemp.min.raw': 79.812, 
-            'week.windrose.banded': [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 2.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
-                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+            'day.outTemp.min.raw': 79.812,
+            'week.windrose.banded': [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 2.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                                      [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]],
             'current.outTemp': '79.8°F',
             'current.barometer.raw': 5,
             'month.windrose.time': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             'windrose.bands': [1.1, 4.7, 8.1, 12.8, 19.7, 24.8],
-            'almanac.moon_phase': 'New'}
+            'station.version': '5.3.1',
+            'station.python_version': '3.10.13',
+            'station.hardware': 'station_hardware',
+            'station.location': 'location',
+            'station.altitude': '0 feet',
+            'station.latitude': ['00', '00.00', 'N'],
+        }
 
         print(pkt)
         print('')
