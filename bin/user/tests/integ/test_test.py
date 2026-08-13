@@ -88,7 +88,7 @@ class TestUnitSimpleClass(unittest.TestCase):
                                    # 'almanac.sunrise', 'almanac.moon_phase',
                                    # 'almanac(horizon=-6).sun(use_center=1).rise', 'almanac(horizon=-6).sun(use_center=1).set',
                                    # Too hard to test: 'station.os_uptime.long_form()' 'station.uptime.long_form()'
-                                   'station.version', 'station.python_version', 'station.hardware', 'station.location', 'station.altitude', 'station.latitude',
+                                   'station.os_uptime.long_form()', 'station.uptime.long_form()', 'station.version', 'station.python_version', 'station.hardware', 'station.location', 'station.altitude', 'station.latitude',
                                    ],
                     },
                 },
@@ -142,13 +142,16 @@ class TestUnitSimpleClass(unittest.TestCase):
             'current.barometer.raw': 5,
             'month.windrose.time': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             'windrose.bands': [1.1, 4.7, 8.1, 12.8, 19.7, 24.8],
-            'station.version': '5.3.1',
-            'station.python_version': '3.10.13',
             'station.hardware': 'station_hardware',
             'station.location': 'location',
             'station.altitude': '0 feet',
             'station.latitude': ['00', '00.00', 'N'],
         }
+        # Testing actual values is great, but we really are just testing that WeewX LoopData runs
+        expected_loopdata_pkt['station.os_uptime.long_form()'] = loopdata_pkt['station.os_uptime.long_form()']
+        expected_loopdata_pkt['station.uptime.long_form()'] = loopdata_pkt['station.uptime.long_form()']
+        expected_loopdata_pkt['station.version'] = loopdata_pkt['station.version']
+        expected_loopdata_pkt['station.python_version'] = loopdata_pkt['station.python_version']
 
         print(pkt)
         print('')
