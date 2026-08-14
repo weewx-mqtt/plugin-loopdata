@@ -13,7 +13,7 @@ jobs:
       #pip-list: 'paho-mqtt'
       #package-list: 'mosquitto'
       weewx-extension: 'https://github.com/chaunceygardiner/weewx-loopdata/'
-      weewx-extension-ver: '6.9'
+      weewx-extension-ver: '6.10'
       unit-test: false
       function-test: false
       integration-test: true
