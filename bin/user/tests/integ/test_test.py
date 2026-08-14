@@ -84,9 +84,8 @@ class TestUnitSimpleClass(unittest.TestCase):
                                    '10m.windGust.max', '10m.wind.gustdir.raw', '10m.wind.gustdir.ordinal_compass',
                                    'week.windrose.banded', 'week.windrose.calm',
                                    'month.windrose.sum', 'month.windrose.time',
-                                   # Almanac currently requires WeeWX 5.3 or greater
-                                   # 'almanac.sunrise', 'almanac.moon_phase',
-                                   # 'almanac(horizon=-6).sun(use_center=1).rise', 'almanac(horizon=-6).sun(use_center=1).set',
+                                   'almanac.sunrise', 'almanac.moon_phase',
+                                   'almanac(horizon=-6).sun(use_center=1).rise', 'almanac(horizon=-6).sun(use_center=1).set',
                                    'station.os_uptime.long_form()', 'station.uptime.long_form()', 'station.version', 'station.python_version', 'station.hardware', 'station.location', 'station.altitude', 'station.latitude',
                                    ],
                     },
@@ -147,10 +146,10 @@ class TestUnitSimpleClass(unittest.TestCase):
             'station.latitude': ['00', '00.00', 'N'],
         }
         # Testing actual values is great, but we really are just testing that WeewX LoopData runs
-        # expected_loopdata_pkt['almanac.sunrise'] = loopdata_pkt['almanac.sunrise']
-        # expected_loopdata_pkt['almanac.moon_phase'] = loopdata_pkt['almanac.moon_phase']
-        # expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise'] = loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise']
-        # expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set'] = loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set']
+        expected_loopdata_pkt['almanac.sunrise'] = loopdata_pkt['almanac.sunrise']
+        expected_loopdata_pkt['almanac.moon_phase'] = loopdata_pkt['almanac.moon_phase']
+        expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise'] = loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise']
+        expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set'] = loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set']
         expected_loopdata_pkt['station.os_uptime.long_form()'] = loopdata_pkt['station.os_uptime.long_form()']
         expected_loopdata_pkt['station.uptime.long_form()'] = loopdata_pkt['station.uptime.long_form()']
         expected_loopdata_pkt['station.version'] = loopdata_pkt['station.version']
