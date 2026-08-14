@@ -62,6 +62,20 @@ source ~/weewx-venv/bin/activate
 
 ## Configuring
 
+MQTTLoopData is installed with it disabled. Setting flag, [enable = true](https://weewx-mqtt.github.io/plugin-loopdata/common-options/#enable) and restarting WeeWX will start publishing loop-data to the configured topic.
+
+The installation process will create a [MQTTLoopData] section in the weewx configuration file.
+It should be straightforward to modify this 'template'.
+The [[topic](https://weewx-mqtt.github.io/plugin-loopdata/common-options/#topic-name-sections) to publish to usually needs to be configured.
+
+The fields to be published needs to be configured (ToDo: - fill in)
+
+The plugin value in MQTTPublish needs to be updated (ToDo: - fill in)
+
+Reference weewx-loopdata repo (ToDo: - fill in)
+
+Additional information on configuration MQTTLoopData can be found in [help documentation](https://weewx-mqtt.github.io/plugin-loopdata/common-options).
+
 ## Updating
 
 ---
