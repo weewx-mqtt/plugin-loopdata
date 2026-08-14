@@ -23,7 +23,7 @@ helpers_spec = importlib.util.spec_from_file_location("helpers", pathlib.Path(__
 helpers = importlib.util.module_from_spec(helpers_spec)
 helpers_spec.loader.exec_module(helpers)
 
-class TestUnitSimpleClass(unittest.TestCase):
+class TestMQTTLoopData(unittest.TestCase):
     def test_update_packet(self):
         self.maxDiff = None
         mock_logger = mock.Mock()
