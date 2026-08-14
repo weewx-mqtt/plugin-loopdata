@@ -7,7 +7,7 @@ It uses undocumented, and therefore, unsupported interfaces of [weewx-loopdata](
 Then instead of writing the loop-data to a file, it adds it the configured topic.
 Then MQTTPublish publishes the data to the topic.
 
-In addition to adding MQTT capability to weewx-loopdata](https://github.com/chaunceygardiner/weewx-loopdata), support for partial packets is added.
+In addition to adding MQTT capability to [weewx-loopdata](https://github.com/chaunceygardiner/weewx-loopdata), support for partial packets is added.
 This is accomplished by 'caching' loop packet data and 'filling in' any fields that are missing in the current loop packet with the prior value.
 
 **When using, remmber to update the URLs in the 'footer' and in 'additional information' below.**
