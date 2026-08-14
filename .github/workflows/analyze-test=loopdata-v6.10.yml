@@ -1,0 +1,29 @@
+name: Run oldest loopdata version
+
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  analyze-test:
+    uses: weewx-extensions/development-tools/.github/workflows/analyze-test-matrix.yml@v5
+    with:
+      module-name: 'mqttloopdata'
+      #pip-list: 'paho-mqtt'
+      #package-list: 'mosquitto'
+      weewx-extension: 'https://github.com/chaunceygardiner/weewx-loopdata/'
+      weewx-extension-ver: '6.9'
+      unit-test: false
+      function-test: false
+      integration-test: true
+      e2e-test: false
+      coveralls-upload: false
+      codecov-upload: false
+      codacy-upload: false
+      sonar-scan: false
+      #flake-extra-parms: '--exclude tests'
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      CODACY_API_TOKEN: ${{ secrets.CODACY_API_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
