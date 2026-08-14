@@ -24,7 +24,7 @@ helpers = importlib.util.module_from_spec(helpers_spec)
 helpers_spec.loader.exec_module(helpers)
 
 class TestUnitSimpleClass(unittest.TestCase):
-    def test_test(self):
+    def test_update_packet(self):
         self.maxDiff = None
         mock_logger = mock.Mock()
         mock_engine = mock.Mock()
@@ -79,14 +79,18 @@ class TestUnitSimpleClass(unittest.TestCase):
                         # so a legend never hardcodes them. It is the one key you get without asking.
                         'fields': ['current.outTemp', 'day.outTemp.min.raw', 'day.outTemp.max.formatted',
                                    'current.barometer', 'current.barometer.raw', 'trend.barometer.raw', 'trend.barometer.desc',
-                                   'year.rainRate', 'year.rainRate.raw', 'year.rain.sum', 'year.rain.sum.raw', 'year.rainRate.max', 'year.rainRate.max.raw',
-                                   'current.windSpeed', 'current.windSpeed.raw', 'current.windDir.raw', 'current.windDir.ordinal_compass',
+                                   'year.rainRate', 'year.rainRate.raw', 'year.rain.sum', 'year.rain.sum.raw',
+                                   'year.rainRate.max', 'year.rainRate.max.raw',
+                                   'current.windSpeed', 'current.windSpeed.raw',
+                                   'current.windDir.raw', 'current.windDir.ordinal_compass',
                                    '10m.windGust.max', '10m.wind.gustdir.raw', '10m.wind.gustdir.ordinal_compass',
                                    'week.windrose.banded', 'week.windrose.calm',
                                    'month.windrose.sum', 'month.windrose.time',
                                    'almanac.sunrise', 'almanac.moon_phase',
                                    'almanac(horizon=-6).sun(use_center=1).rise', 'almanac(horizon=-6).sun(use_center=1).set',
-                                   'station.os_uptime.long_form()', 'station.uptime.long_form()', 'station.version', 'station.python_version', 'station.hardware', 'station.location', 'station.altitude', 'station.latitude',
+                                   'station.os_uptime.long_form()', 'station.uptime.long_form()', 'station.version',
+                                   'station.python_version', 'station.hardware', 'station.location',
+                                   'station.altitude', 'station.latitude',
                                    ],
                     },
                 },
@@ -149,8 +153,10 @@ class TestUnitSimpleClass(unittest.TestCase):
         # Testing actual values is great, but we really are just testing that WeewX LoopData runs
         expected_loopdata_pkt['almanac.sunrise'] = loopdata_pkt['almanac.sunrise']
         expected_loopdata_pkt['almanac.moon_phase'] = loopdata_pkt['almanac.moon_phase']
-        expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise'] = loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise']
-        expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set'] = loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set']
+        expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise'] = \
+            loopdata_pkt['almanac(horizon=-6).sun(use_center=1).rise']
+        expected_loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set'] = \
+            loopdata_pkt['almanac(horizon=-6).sun(use_center=1).set']
         expected_loopdata_pkt['station.os_uptime.long_form()'] = loopdata_pkt['station.os_uptime.long_form()']
         expected_loopdata_pkt['station.uptime.long_form()'] = loopdata_pkt['station.uptime.long_form()']
         expected_loopdata_pkt['station.version'] = loopdata_pkt['station.version']
