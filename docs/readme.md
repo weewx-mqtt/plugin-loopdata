@@ -2,13 +2,13 @@
 
 ## Description
 
-This is a template `readme` file.
-It is meant to be used both in the repository display and the github pages.
-This file is included from an `index.md` file in github pages.
-It is displayed 'as-is' in the repository.
-This means it must be 'native' markdown (or html).
-Therefore the 'footer' is included directly in this file.
-And the `index.md` file for github pages 'turns off the footer'.
+This is a 'plugin' for [WeeWX-MQTTPublish](https://github.com/weewx-mqtt/publish).
+It uses undocumented, and therefore, unsupported interfaces of [weewx-loopdata](https://github.com/chaunceygardiner/weewx-loopdata) to create the loop-data.
+Then instead of writing the loop-data to a file, it adds it the configured topic.
+Then MQTTPublish publishes the data to the topic.
+
+In addition to adding MQTT capability to weewx-loopdata](https://github.com/chaunceygardiner/weewx-loopdata), support for partial packets is added.
+This is accomplished by 'caching' loop packet data and 'filling in' any fields that are missing in the current loop packet with the prior value.
 
 **When using, remmber to update the URLs in the 'footer' and in 'additional information' below.**
 
