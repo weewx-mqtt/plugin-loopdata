@@ -40,13 +40,32 @@ class MQTTLoopData(LoopData):
         config_dict['LoopData'] = {}
         config_dict['LoopData'] = weeutil.config.deep_copy(config_dict['MQTTLoopData'])
 
+        # Check if the data dir exists
+        # If it does not exist, LoopData creates it
+        # But, we don't need it, so we will delete it after it is created
+        # Not sure it is worth the complexit
+        loop_config_dict         = config_dict.get('LoopData', {})
+        formatting_spec_dict     = loop_config_dict.get('Formatting', {})
+        file_spec_dict           = loop_config_dict.get('FileSpec', {})
+        target_report = formatting_spec_dict.get('target_report', 'LoopDataReport')
+        target_report_dict = LoopData.get_target_report_dict(config_dict, target_report)
+        dir_path = pathlib.Path(LoopData.compose_loop_data_dir(config_dict, target_report_dict, file_spec_dict))
+        dir_exists = pathlib.Path.exists(dir_path)
+
         super().__init__(weewx_dict['engine'], config_dict)
 
         # Since we do not write any data, we will delete the temporary file
         file = pathlib.Path(self.cfg.tmpname)
         file.unlink(missing_ok=True)
 
-        # A separare thread is no longer needed to do the 'real' work.
+        # If LoopData created the data directory, delete it
+        if not dir_exists:
+            try:
+                dir_path.rmdir()
+            except OSError:
+                self.logger.logerr("Data directory is not empty or does not exist.")
+
+        # We are running in a separate thread, so no need for another one to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
 
