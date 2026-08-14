@@ -4,6 +4,7 @@
 #    See the file LICENSE.txt for your full rights.
 
 import copy
+import pathlib
 import time
 
 from typing import Dict
@@ -40,6 +41,10 @@ class MQTTLoopData(LoopData):
         config_dict['LoopData'] = weeutil.config.deep_copy(config_dict['MQTTLoopData'])
 
         super().__init__(weewx_dict['engine'], config_dict)
+
+        # Since we do not write any data, we will delete the temporary file
+        file = pathlib.Path(self.cfg.tmpname)
+        file.unlink(missing_ok=True)
 
         # A separare thread is no longer needed to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
