@@ -145,6 +145,7 @@ class TestUnitSimpleClass(unittest.TestCase):
             'station.altitude': '0 feet',
             'station.latitude': ['00', '00.00', 'N'],
         }
+
         # Testing actual values is great, but we really are just testing that WeewX LoopData runs
         expected_loopdata_pkt['almanac.sunrise'] = loopdata_pkt['almanac.sunrise']
         expected_loopdata_pkt['almanac.moon_phase'] = loopdata_pkt['almanac.moon_phase']
@@ -155,11 +156,7 @@ class TestUnitSimpleClass(unittest.TestCase):
         expected_loopdata_pkt['station.version'] = loopdata_pkt['station.version']
         expected_loopdata_pkt['station.python_version'] = loopdata_pkt['station.python_version']
 
-        print(pkt)
-        print('')
-        print(loopdata_pkt)
         self.assertDictEqual(loopdata_pkt, expected_loopdata_pkt)
-        print("done")
 
 if __name__ == '__main__':
     helpers.run_tests()
