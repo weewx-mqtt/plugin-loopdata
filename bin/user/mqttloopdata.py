@@ -39,6 +39,12 @@ class MQTTLoopData(LoopData):
         config_dict = weeutil.config.deep_copy(weewx_dict['config_dict'])
         config_dict['LoopData'] = {}
         config_dict['LoopData'] = weeutil.config.deep_copy(config_dict['MQTTLoopData'])
+        # Rsync functionality not supported by MQTTLoopData
+        config_dict['LoopData']['RsyncSpec'] = {
+            'enable': False,
+            'compress': False,
+            'log_success': False,
+        }
 
         # Check if the data dir exists
         # If it does not exist, LoopData creates it
