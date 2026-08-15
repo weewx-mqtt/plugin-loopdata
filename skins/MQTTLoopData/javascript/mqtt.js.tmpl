@@ -1,0 +1,101 @@
+//    Copyright (c) 2026 Rich Bell <bellrichm@gmail.com>
+//    See the file LICENSE.txt for your rights.
+
+#import random
+var client;
+
+function onConnect() {
+    #if $getVar("$Extras.pages.debug", False)
+        console.log("In onConnect");
+    #end if    
+    #for $topic in $getVar('Extras.mqtt.topics', [])
+        client.subscribe("$topic")
+    #end for
+
+    ## ToDo: log or display on GUI
+    #set disconnect_seconds = $getVar('$Extras.mqtt.disconnect', None)
+    #if $disconnect_seconds
+        #set disconnect_milliseconds = int($disconnect_seconds) * 1000
+        setTimeout(MQTTDisconnect, $disconnect_milliseconds);
+    #end if
+}
+
+function onConnected(reconn ,url){
+    #if $getVar("$Extras.pages.debug", False)
+        console.log("onConnected: " + reconn);
+        console.log("onConnected: " + url);
+    #end if       
+	
+    sessionStorage.setItem("MQTTConnected", true);
+}
+
+function onConnectionLost(responseObject) {
+    message = "";
+    if (responseObject.errorCode !== 0) {
+        message = responseObject.errorMessage;
+    }
+    #if $getVar("$Extras.pages.debug", False)
+        console.log("onConnectionLost: " + message);
+    #end if        
+
+    sessionStorage.removeItem("MQTTConnected");
+}
+
+function onFailure(error) {
+    // On a connect error, WebSocket writes to console. Cannot stop it.
+    // https://stackoverflow.com/questions/31002592/javascript-doesnt-catch-error-in-websocket-instantiation
+    message = "Failed: " + error.errorMessage + " code: " + error.errorCode
+    console.log(message)
+    #if $getVar("$Extras.pages.debug", False)
+        console.log(message);
+    #end if    
+}
+
+function onMessageArrived(message) {
+    console.log("onMessageArrived: ");
+    console.log(message.payloadString);
+}
+
+function MQTTConnect() {
+    var clientID = "jasClientID-" + parseInt(Math.random() * 100);
+    client = new Paho.MQTT.Client("$Extras.mqtt.host", $Extras.mqtt.port, clientID);
+
+    client.onConnectionLost = onConnectionLost;
+    client.onMessageArrived = onMessageArrived;
+    client.onConnected = onConnected;
+
+    #set clean_session = $Extras.mqtt.cleanSession.lower()
+    #set reconnect = $Extras.mqtt.reconnect.lower()
+    #set use_SSL = $Extras.mqtt.useSSL.lower()
+    #if $getVar("$Extras.pages.debug", False)
+        console.log("Attempting to connect");
+        console.log("host: $Extras.mqtt.host");
+        console.log("port: $Extras.mqtt.port");
+        console.log("clientID: " + clientID);
+        console.log("timeout: $Extras.mqtt.timeout");
+        console.log("keepAliveInterval: $Extras.mqtt.keepAliveInterval");
+        console.log("cleanSession: $clean_session");
+        console.log("useSSL: $use_SSL");
+        console.log("reconnect: $reconnect");
+    #end if    
+
+    client.connect({ 
+        timeout: $Extras.mqtt.timeout,
+        keepAliveInterval: $Extras.mqtt.keepAliveInterval,
+        cleanSession: $clean_session,
+        useSSL: $use_SSL,
+        reconnect: $reconnect,
+        // end defaults
+        userName: "$getVar('$Extras.mqtt.username', '')",
+        password: "$getVar('$Extras.mqtt.password', '')",
+		onSuccess: onConnect,
+		onFailure: onFailure,        
+    });
+}
+
+function MQTTDisconnect() {
+    client.disconnect();
+}
+
+MQTTConnect();
+
