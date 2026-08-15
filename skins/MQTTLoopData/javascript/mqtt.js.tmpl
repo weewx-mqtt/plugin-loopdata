@@ -54,6 +54,8 @@ function onFailure(error) {
 function onMessageArrived(message) {
     console.log("onMessageArrived: ");
     console.log(message.payloadString);
+    result = JSON.parse(message.payloadString)
+    updateGauges(result);
 }
 
 function MQTTConnect() {
