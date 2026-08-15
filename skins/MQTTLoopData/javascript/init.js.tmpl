@@ -1,0 +1,56 @@
+## Copyright (C)2022-2026 by John A Kline (john@johnkline.com)
+## Distributed under the terms of the GNU Public License (GPLv3)
+## See LICENSE for your rights.
+
+#errorCatcher Echo
+  #if $Extras.has_key('page_update_pwd')
+    page_update_pwd = '$Extras.page_update_pwd';
+  #else
+    page_update_pwd = 'foo';
+  #end if
+  #if $Extras.has_key('refresh_rate')
+    refresh_rate = $Extras.refresh_rate;
+  #else
+    refresh_rate = 2;
+  #end if
+  #if $Extras.has_key('expiration_time')
+    expiration_time = $Extras.expiration_time;
+  #else
+    expiration_time = 4;
+  #end if
+  // The report's language drives toLocaleTimeString (the last-update
+  // stamp); an unknown tag must not break every render.
+  LOCALE = '$lang';
+  try {
+    new Date().toLocaleString(LOCALE);
+  } catch (e) {
+    console.log('bad lang "' + LOCALE + '", using en-US');
+    LOCALE = 'en-US';
+  }
+  ## Everything this script composes is translated at generation time and
+  ## fed here: compass cardinals from the report formatter's ordinates
+  ## (the same source as .ordinal_compass fields when this report is the
+  ## loopdata target), and the badge/readout strings from [Texts] via
+  ## $gettext (each key spelled out literally so the tests can tie the
+  ## include to lang/en.conf).  Both ride through json.dumps, which
+  ## \u-escapes every non-ASCII character -- html_entities encoding can
+  ## never touch them, and canvas text takes no entities anyway.
+  #import json
+  #set $ords = $almanac.formatter.ordinate_names
+  CARDINALS = $json.dumps([str($ords[0]), str($ords[4]), str($ords[8]), str($ords[12])]);
+  #set $t = {}
+  #silent $t.update({'LIVE': $gettext('LIVE')})
+  #silent $t.update({'{age}s ago': $gettext('{age}s ago')})
+  #silent $t.update({'NO DATA (HTTP {status}) — check loop_data_file': $gettext('NO DATA (HTTP {status}) — check loop_data_file')})
+  #silent $t.update({'BAD DATA — check loop_data_file': $gettext('BAD DATA — check loop_data_file')})
+  #silent $t.update({'OFFLINE': $gettext('OFFLINE')})
+  #silent $t.update({'CLICK-ME': $gettext('CLICK-ME')})
+  #silent $t.update({'calm': $gettext('calm')})
+  #silent $t.update({'gust {gust}': $gettext('gust {gust}')})
+  #silent $t.update({'gust {gust} @ {dir}': $gettext('gust {gust} @ {dir}')})
+  #silent $t.update({'today': $gettext('today')})
+  #silent $t.update({'today {min} to {max}': $gettext('today {min} to {max}')})
+  #silent $t.update({'max today {max}': $gettext('max today {max}')})
+  #silent $t.update({'rate {rate}': $gettext('rate {rate}')})
+  #silent $t.update({'pm2.5 {pm25}': $gettext('pm2.5 {pm25}')})
+  T = $json.dumps($t);
