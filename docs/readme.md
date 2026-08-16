@@ -76,6 +76,10 @@ Additional information on configuration MQTTLoopData can be found in [help docum
 
 ## Updating
 
+## Credits
+
+[weewx-loopdata](https://github.com/chaunceygardiner/weewx-loopdata) - does the heavy lifting
+
 ---
 **Getting Help**
 
