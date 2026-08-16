@@ -80,7 +80,7 @@ MQTTLOOPDATA_CONFIG = """
                 keepAliveInterval = 60
 
                 useSSL = false
-                #username = 
+                #username =
                 #password =
                 host = localhost
                 port = 9001
