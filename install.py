@@ -67,9 +67,9 @@ MQTTLOOPDATA_CONFIG = """
         # Derived from, https://github.com/chaunceygardiner/weewx-loopdata
         #
         # -------------------------------------------------------------------------------------------------------
-        enable: False
-        skin: MQTTLoopData
-        HTML_ROOT: mqttloopdata
+        enable = False
+        skin = MQTTLoopData
+        HTML_ROOT = mqttloopdata
         [[[Extras]]]
             [[[[mqtt]]]]
                 enable = True
@@ -106,7 +106,7 @@ class MQTTLoopDataPublisher(ExtensionInstaller):
             'files': [('bin/user', ['bin/user/mqttloopdata.py',
                                     ]),
                       ('skins/MQTTLoopData', ['skins/MQTTLoopData/skin.conf',
-                                              'skins/MQTTLoopData/index.htnml.tmpl',
+                                              'skins/MQTTLoopData/index.html.tmpl',
                                               ]),
                       ('skins/MQTTLoopData/javascript', ['skins/MQTTLoopData/javascript/gauges.js',
                                                          'skins/MQTTLoopData/javascript/index.js',
