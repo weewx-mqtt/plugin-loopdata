@@ -79,7 +79,16 @@ class MQTTLoopDataPublisher(ExtensionInstaller):
             'author': "Rich Bell",
             'author_email': "bellrichm@gmail.com",
             'files': [('bin/user', ['bin/user/mqttloopdata.py',
-                                    ])]
+                                    ]),
+                      ('skins/MQTTLoopData', ['skins/MQTTLoopData/skin.conf',
+                                              'skins/MQTTLoopData/index.htnml.tmpl',
+                                              ]),
+                      ('skins/MQTTLoopData/javascript', ['skins/MQTTLoopData/javascript/gauges.js',
+                                                         'skins/MQTTLoopData/javascript/index.js',
+                                                         'skins/MQTTLoopData/javascript/init.js.tmpl',
+                                                         'skins/MQTTLoopData/javascript/mqtt.js.tmpl',
+                                                         ]),
+                      ],
         }
 
         mqttloopdata_dict = configobj.ConfigObj(StringIO(MQTTLOOPDATA_CONFIG))
