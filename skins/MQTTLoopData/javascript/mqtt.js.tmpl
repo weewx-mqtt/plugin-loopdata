@@ -55,6 +55,19 @@ function onMessageArrived(message) {
     console.log("onMessageArrived: ");
     console.log(message.payloadString);
     result = JSON.parse(message.payloadString)
+
+   // The LIVE indicator, from the packet's own timestamp.
+    var lastUpdate = new Date(result["current.dateTime.raw"] * 1000);
+    var age = Math.round(Math.abs(new Date() - lastUpdate) / 1000);
+    var element = document.getElementById("live-label");
+    if (age <= 3 * refresh_rate) {
+        element.innerHTML = fmt('LIVE');
+    } else {
+        element.innerHTML = fmt('{age}s ago', {age: age});
+    }
+    var activityElement = document.getElementById("last-update");
+    activityElement.innerHTML = lastUpdate.toLocaleTimeString(LOCALE, {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+
     updateGauges(result);
 }
 
