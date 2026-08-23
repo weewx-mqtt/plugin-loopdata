@@ -26,7 +26,7 @@ helpers_spec.loader.exec_module(helpers)
 class TestMQTTLoopData(unittest.TestCase):
     def test_update_packet(self):
         self.maxDiff = None
-        mock_logger = mock.Mock()
+        mock_logger_queue = mock.Mock()
         mock_engine = mock.Mock()
         mock_engine.stn_info.altitude_vt = (0, 'meter', 'group_altitude')
         mock_engine.stn_info.latitude_f = 0
@@ -97,7 +97,7 @@ class TestMQTTLoopData(unittest.TestCase):
             },
         }
 
-        SUT = user.mqttloopdata.MQTTLoopData(mock_logger, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
+        SUT = user.mqttloopdata.MQTTLoopData(mock_logger_queue, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
         pkt = {
             'dateTime': time.time(),
             'usUnits': 1,
