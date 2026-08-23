@@ -12,6 +12,7 @@ from typing import Dict
 import weewx
 import weeutil
 
+import user.loopdata
 from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
 
 VERSION = "0.1.0-rc01"
@@ -23,18 +24,20 @@ class log:  # pylint: disable=invalid-name
 class MQTTLoopData(LoopData):
     """ Create loop data for MQTTPublish. """
     # def __init__(self, engine, config_dict):
-    def __init__(self, logger, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
+    def __init__(self, logger_queue, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
         # ToDo: Currently only support publishing json - need to add a check
         self.enabled = plugin_dict.get('enabled', True)
-        self.logger = logger
+        self.logger_queue = logger_queue
         if not self.enabled:
-            self.logger("Not enabled, exiting")
+            self.logger_queue.put({'log_type': 'INFO',
+                                   'log_message': "Not enabled, exiting"})
             return
 
         self.topics = plugin_dict['topics']
-        log.info = logger.loginf
+        log.info = self.loginfo
         self.simple_cache = {}
+        user.loopdata.log.info = self.loginfo
 
         config_dict = weeutil.config.deep_copy(weewx_dict['config_dict'])
         config_dict['LoopData'] = {}
@@ -74,6 +77,10 @@ class MQTTLoopData(LoopData):
         # We are running in a separate thread, so no need for another one to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
+
+    def loginfo(self, msg):
+        self.logger_queue.put({'log_type': 'INFO',
+                               'log_message': msg})
 
     def pre_loop(self, _event):
         """ Data is no longer 'retrieved' from WeeWX pipeline. """
