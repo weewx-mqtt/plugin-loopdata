@@ -27,7 +27,7 @@ class MQTTLoopData(LoopData):
     def __init__(self, logger_queue, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
         # ToDo: Currently only support publishing json - need to add a check
-        self.enabled = plugin_dict.get('enabled', True)
+        self.enabled = plugin_dict.get('enable', True)
         self.logger_queue = logger_queue
         if not self.enabled:
             self.logger_queue.put({'log_type': 'INFO',
