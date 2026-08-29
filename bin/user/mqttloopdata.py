@@ -11,7 +11,7 @@ from typing import Dict
 
 import weewx
 import weeutil
-from weeutil import to_bool
+from weeutil.weeutil import to_bool
 
 import user.loopdata
 from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
@@ -32,7 +32,7 @@ class MQTTLoopData(LoopData):
         self.logger_queue = logger_queue
         if not self.enabled:
             self.logger_queue.put({'log_type': 'INFO',
-                                   'log_message': "Not enabled, exiting"})
+                                   'log_message': "MQTTLoopData plugin not enabled, exiting"})
             return
 
         self.topics = plugin_dict['topics']
