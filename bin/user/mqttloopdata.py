@@ -14,7 +14,7 @@ import weeutil
 from weeutil.weeutil import to_bool
 
 import user.loopdata
-from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
+from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor, ReportRenderer  # pylint: disable=import-error,no-name-in-module
 
 VERSION = "0.1.0-rc01"
 
@@ -78,6 +78,9 @@ class MQTTLoopData(LoopData):
         # We are running in a separate thread, so no need for another one to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
+
+        self.render_failures = set()
+        self.renderers = [ReportRenderer.for_context(ctx, self.cfg) for ctx in self.cfg.contexts]
 
     def loginfo(self, msg):
         self.logger_queue.put({'log_type': 'INFO',
@@ -179,9 +182,12 @@ class MQTTLoopData(LoopData):
             pass
 
         # Process new packet.
-        return LoopProcessor.generate_loopdata_dictionary(
-            pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
-            self.loop_processor.station_eval)
+        #return LoopProcessor.generate_loopdata_dictionary(
+        #    pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
+        #    self.loop_processor.station_eval)
+
+        return LoopProcessor.generate_output(
+                    pkt, self.cfg, self.loop_processor.accumulators, self.renderers, self.render_failures)
 
     def get_callbacks(self):
         """ The callbacks. """
