@@ -54,7 +54,7 @@ function onFailure(error) {
 function onMessageArrived(message) {
     console.log("onMessageArrived: ");
     console.log(message.payloadString);
-    result = JSON.parse(message.payloadString)['LoopDataReport']
+    result = JSON.parse(message.payloadString)
 
    // The LIVE indicator, from the packet's own timestamp.
     var lastUpdate = new Date(result["current.dateTime.raw"] * 1000);
