@@ -75,12 +75,11 @@ class MQTTLoopData(LoopData):
             except OSError:
                 self.logger.logerr("Data directory is not empty or does not exist.")
 
+        self.loop_data = None
+
         # We are running in a separate thread, so no need for another one to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
-
-        #self.render_failures = set()
-        #self.renderers = [ReportRenderer.for_context(ctx, self.cfg) for ctx in self.cfg.contexts]
 
     def loginfo(self, msg):
         self.logger_queue.put({'log_type': 'INFO',
@@ -144,9 +143,8 @@ class MQTTLoopData(LoopData):
                 # Unreachable: is_continuous_period admits only the three
                 # forms above, and union_obstypes re-keys 'trend'.  Skip
                 # rather than carry the previous iteration's window.
-                ##log.debug('No window for continuous period %s, skipping it.' % per)
                 self.logger_queue.put({'log_type': 'DEBUG',
-                                       'log_message': 'No window for continuous period %s, skipping it.' % per})
+                                       'log_message': f'No window for continuous period {per}, skipping it.'})
                 continue
 
             cont_accum, obstypes = LoopData.create_continuous_accum(
@@ -189,13 +187,8 @@ class MQTTLoopData(LoopData):
             log.info('Cannot calculate beaufort.')
             pass
 
-        # Process new packet.
-        #return LoopProcessor.generate_loopdata_dictionary(
-        #    pkt, self.loop_processor.cfg, self.loop_processor.accumulators, self.loop_processor.almanac_eval,
-        #    self.loop_processor.station_eval)
-
         return LoopProcessor.generate_output(
-                    pkt, self.cfg, self.loop_processor.accumulators, self.loop_processor.renderers, self.loop_processor.render_failures)
+            pkt, self.cfg, self.loop_processor.accumulators, self.loop_processor.renderers, self.loop_processor.render_failures)
 
     def get_callbacks(self):
         """ The callbacks. """
@@ -204,19 +197,34 @@ class MQTTLoopData(LoopData):
 
         return [
             {
+                'on_weewx_data': {
+                    'timing': 'immediate',
+                    'callback': self.on_weewx_data,
+                },
                 'update_record': {
                     'timing': 'immediate',
-                    'callback': self.update_record
+                    'callback': self.update_record,
                 },
             },
         ]
 
+    def on_weewx_data(self, _data):
+        """ Run when MQTTPublish receives a loop packet or archive record event from WeeWX. """
+
+        # reset the loop_data dictionary for the new packet/record processing
+        self.loop_data = None
+
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
         if topic in self.topics:
-            pkt = copy.deepcopy(data)
-            pkt['interval']     = self.cfg.loop_frequency / 60.0
-            self.simple_cache.update(pkt)
+            if self.loop_data is None:
+                pkt = copy.deepcopy(data)
+                pkt['interval']     = self.cfg.loop_frequency / 60.0
+                self.simple_cache.update(pkt)
+                self.loop_data = self.update_packet(self.simple_cache)
 
-            loopdata_pkt = self.update_packet(self.simple_cache)
-            data.update(loopdata_pkt)
+            if self.topics[topic]['report'] in self.loop_data:
+                data.update(self.loop_data[self.topics[topic]['report']])
+            else:
+                self.logger_queue.put({'log_type': 'ERROR',
+                                       'log_message': f"{self.topics[topic]['report']} no found in loop data."})
