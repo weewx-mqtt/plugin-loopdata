@@ -16,11 +16,9 @@ This is accomplished by 'caching' loop packet data and 'filling in' any fields t
 |---------------------------------------------------------------------|-------------------------|
 |[WeeWX](https://www.weewx.com)                                       |5.0.0 or higher          |
 |[Python](https://www.python.org)                                     |3.9.13 or higher         |
-|[weewx-loopdata](https://github.com/chaunceygardiner/weewx-loopdata) |6.10 or higher           |
+|[weewx-loopdata](https://github.com/chaunceygardiner/weewx-loopdata) |7.0 or higher           |
 
 *Note:* Early versions of Python 3 may work, but have not been explicitly tested.
-
-*Note:* Version 6.10 of weewx-loop data fixed an [issue](https://github.com/chaunceygardiner/weewx-loopdata/issues/15) with running version 5.2 and earlier of WeeWX.
 
 ## Installing
 
