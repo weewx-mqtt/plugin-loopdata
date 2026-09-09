@@ -14,7 +14,7 @@ import weeutil
 from weeutil.weeutil import to_bool
 
 import user.loopdata
-from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor, ReportRenderer  # pylint: disable=import-error,no-name-in-module
+from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
 
 VERSION = "0.1.0-rc01"
 
@@ -53,18 +53,18 @@ class MQTTLoopData(LoopData):
         # Check if the data dir exists
         # If it does not exist, LoopData creates it
         # But, we don't need it, so we will delete it after it is created
-        # Not sure it is worth the complexit
+        # Not sure it is worth the complexity
         loop_config_dict         = config_dict.get('LoopData', {})
-        formatting_spec_dict     = loop_config_dict.get('Formatting', {})
         file_spec_dict           = loop_config_dict.get('FileSpec', {})
-        target_report = formatting_spec_dict.get('target_report', 'LoopDataReport')
-        target_report_dict = LoopData.get_target_report_dict(config_dict, target_report)
+        target_report_dict = LoopData.get_target_report_dict(config_dict, 'LoopDataReport')
         dir_path = pathlib.Path(LoopData.compose_loop_data_dir(config_dict, target_report_dict, file_spec_dict))
+
         dir_exists = pathlib.Path.exists(dir_path)
 
         super().__init__(weewx_dict['engine'], config_dict)
 
         # Since we do not write any data, we will delete the temporary file
+        # I believe in LoopData V7, it cleans up after itself.
         file = pathlib.Path(self.cfg.tmpname)
         file.unlink(missing_ok=True)
 
@@ -145,8 +145,10 @@ class MQTTLoopData(LoopData):
                 # forms above, and union_obstypes re-keys 'trend'.  Skip
                 # rather than carry the previous iteration's window.
                 ##log.debug('No window for continuous period %s, skipping it.' % per)
+                self.logger_queue.put({'log_type': 'DEBUG',
+                                       'log_message': 'No window for continuous period %s, skipping it.' % per})
                 continue
-            
+
             cont_accum, obstypes = LoopData.create_continuous_accum(
                 per, self.cfg.unit_system, self.cfg.archive_interval, obstypes, timelength, day_accum, dbm,
                 archive_delay=self.cfg.archive_delay)
