@@ -79,8 +79,8 @@ class MQTTLoopData(LoopData):
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
 
-        self.render_failures = set()
-        self.renderers = [ReportRenderer.for_context(ctx, self.cfg) for ctx in self.cfg.contexts]
+        #self.render_failures = set()
+        #self.renderers = [ReportRenderer.for_context(ctx, self.cfg) for ctx in self.cfg.contexts]
 
     def loginfo(self, msg):
         self.logger_queue.put({'log_type': 'INFO',
@@ -140,7 +140,13 @@ class MQTTLoopData(LoopData):
                 timelength = int(per[:-1])*3600
             elif LoopData.is_minute_period(per):
                 timelength = int(per[:-1])*60
-
+            else:
+                # Unreachable: is_continuous_period admits only the three
+                # forms above, and union_obstypes re-keys 'trend'.  Skip
+                # rather than carry the previous iteration's window.
+                ##log.debug('No window for continuous period %s, skipping it.' % per)
+                continue
+            
             cont_accum, obstypes = LoopData.create_continuous_accum(
                 per, self.cfg.unit_system, self.cfg.archive_interval, obstypes, timelength, day_accum, dbm,
                 archive_delay=self.cfg.archive_delay)
@@ -187,7 +193,7 @@ class MQTTLoopData(LoopData):
         #    self.loop_processor.station_eval)
 
         return LoopProcessor.generate_output(
-                    pkt, self.cfg, self.loop_processor.accumulators, self.renderers, self.render_failures)
+                    pkt, self.cfg, self.loop_processor.accumulators, self.loop_processor.renderers, self.loop_processor.render_failures)
 
     def get_callbacks(self):
         """ The callbacks. """
