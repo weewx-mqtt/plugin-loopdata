@@ -211,7 +211,7 @@ class MQTTLoopData(LoopData):
     def on_weewx_data(self, data):
         """ Run when MQTTPublish receives a loop packet or archive record event from WeeWX. """
 
-        if time.time() - data['time_stamp'] < 3:
+        if time.time() - data['time_stamp'] < 600:
             # reset the loop_data dictionary for the new packet/record processing
             self.loop_data = None
         else:
