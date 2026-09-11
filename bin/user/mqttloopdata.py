@@ -208,11 +208,14 @@ class MQTTLoopData(LoopData):
             },
         ]
 
-    def on_weewx_data(self, _data):
+    def on_weewx_data(self, data):
         """ Run when MQTTPublish receives a loop packet or archive record event from WeeWX. """
 
-        # reset the loop_data dictionary for the new packet/record processing
-        self.loop_data = None
+        if time.time() - data['time_stamp'] < 3:
+            # reset the loop_data dictionary for the new packet/record processing
+            self.loop_data = None
+        else:
+            print("ToDo: Cleanup, make delta seconds configurable, logging vs printing, etc.")
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
