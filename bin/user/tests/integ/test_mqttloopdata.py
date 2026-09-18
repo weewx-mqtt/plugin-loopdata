@@ -17,6 +17,9 @@ import time
 
 import user.mqttloopdata
 
+# Due to a bug in weewx-loopdata, this test will fail with loopdata 7.4 and WeeWX < 5.3
+# It was fixed in loopdata 7.4.1
+
 # Due to importing user.loopdata, this project has a different 'user' directory (see .env).
 # Therefore will dynamically load 'user.helpers'.
 helpers_spec = importlib.util.spec_from_file_location("helpers", pathlib.Path(__file__).parent / '../helpers.py')
