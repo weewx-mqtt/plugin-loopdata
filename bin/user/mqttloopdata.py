@@ -75,8 +75,6 @@ class MQTTLoopData(LoopData):
             except OSError:
                 self.logger.logerr("Data directory is not empty or does not exist.")
 
-        self.loop_data = None
-
         # We are running in a separate thread, so no need for another one to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
@@ -211,23 +209,21 @@ class MQTTLoopData(LoopData):
     def on_weewx_data(self, data):
         """ Run when MQTTPublish receives a loop packet or archive record event from WeeWX. """
 
-        if time.time() - data['time_stamp'] < 600:
-            # reset the loop_data dictionary for the new packet/record processing
-            self.loop_data = None
-        else:
-            print("ToDo: Cleanup, make delta seconds configurable, logging vs printing, etc.")
+        if data['queue_size'] > 0:
+            print("ToDo: Cleanup, make delta configurable, logging vs printing, etc.")
+
+        # comets = almanac.halley.az, almanac.halley.alt, almanac.halley.earth_distance, almanac.halley.mag, almanac.halley.label, almanac.halley.perihelion.unix_epoch.raw, almanac.hale_bopp.az, almanac.hale_bopp.alt, almanac.hale_bopp.earth_distance, almanac.hale_bopp.mag, almanac.hale_bopp.label, almanac.hale_bopp.perihelion.unix_epoch.raw
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
         if topic in self.topics:
-            if self.loop_data is None:
-                pkt = copy.deepcopy(data)
-                pkt['interval']     = self.cfg.loop_frequency / 60.0
-                self.simple_cache.update(pkt)
-                self.loop_data = self.update_packet(self.simple_cache)
+            pkt = copy.deepcopy(data)
+            pkt['interval']     = self.cfg.loop_frequency / 60.0
+            self.simple_cache.update(pkt)
+            loop_data = self.update_packet(self.simple_cache)
 
-            if self.topics[topic]['report'] in self.loop_data:
-                data.update(self.loop_data[self.topics[topic]['report']])
+            if self.topics[topic]['report'] in loop_data:
+                data.update(loop_data[self.topics[topic]['report']])
             else:
                 self.logger_queue.put({'log_type': 'ERROR',
                                        'log_message': f"{self.topics[topic]['report']} no found in loop data."})
