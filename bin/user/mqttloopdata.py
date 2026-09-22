@@ -50,6 +50,15 @@ class MQTTLoopData(LoopData):
             'log_success': False,
         }
 
+        reports = {}
+        reports['LoopDataReport'] = 'dummy'
+        for topic in self.topics:
+            reports[self.topics[topic]['report']] = topic
+
+        for report in list(config_dict['StdReport'].sections):
+            if report not in reports:
+                config_dict['StdReport'].pop(report)
+
         # Check if the data dir exists
         # If it does not exist, LoopData creates it
         # But, we don't need it, so we will delete it after it is created
