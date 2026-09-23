@@ -228,7 +228,7 @@ class MQTTLoopData(LoopData):
             self.loop_data = None
         else:
             self.logger_queue.put({'log_type': 'INFO',
-                                  'log_message': f"ToDo: Cleanup, make max_queue_size configurable, logging, etc. {data['queue_size']}"})
+                                  'log_message': f"ToDo: Cleanup, make max_queue_size configurable, logging, etc. {data['queue_size']} {self.topics}"})
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
