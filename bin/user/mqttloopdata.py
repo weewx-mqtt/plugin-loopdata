@@ -5,6 +5,7 @@
 
 import copy
 import pathlib
+import sys
 import time
 
 from typing import Dict
@@ -35,6 +36,8 @@ class MQTTLoopData(LoopData):
                                    'log_message': "MQTTLoopData plugin not enabled, exiting"})
             return
 
+        #self.max_queue_size = plugin_dict.get('max_queue_size', sys.maxsize)
+        self.max_queue_size = 0
         self.topics = plugin_dict['topics']
         log.info = self.loginfo
         self.simple_cache = {}
@@ -220,11 +223,12 @@ class MQTTLoopData(LoopData):
     def on_weewx_data(self, data):
         """ Run when MQTTPublish receives a loop packet or archive record event from WeeWX. """
 
-        if time.time() - data['time_stamp'] < 600:
+        if data['queue_size'] <= self.max_queue_size:
             # reset the loop_data dictionary for the new packet/record processing
             self.loop_data = None
         else:
-            print("ToDo: Cleanup, make delta seconds configurable, logging vs printing, etc.")
+            self.logger_queue.put({'log_type': 'INFO',
+                                  'log_message': f"ToDo: Cleanup, make max_queue_size configurable, logging, etc. {data['queue_size']}"})
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
