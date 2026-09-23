@@ -225,10 +225,9 @@ class MQTTLoopData(LoopData):
         if data['queue_size'] <= self.max_queue_size:
             # reset the loop_data dictionary for the new packet/record processing
             self.loop_data = None
-            self.logger_queue.put({'log_type': 'INFO', 'log_message': f"Good Queue size {data['queue_size']} {self.topics}."})
         else:
-            self.logger_queue.put({'log_type': 'INFO',
-                                  'log_message': f"ToDo: Cleanup, make max_queue_size configurable, logging, etc. {data['queue_size']} {self.topics}"})
+            self.logger_queue.put({'log_type': 'DEBUG',
+                                  'log_message': f"Queue aize of {data['queue_size']} is greater than maximum allowed, {self.max_queue_size}"})
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
