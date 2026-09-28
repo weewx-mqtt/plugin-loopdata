@@ -32,7 +32,8 @@ class MQTTLoopData(LoopData):
         self.enabled = to_bool(plugin_dict.get('enable', True))
         self.logger_queue = logger_queue
         if not self.enabled:
-            self.logger_queue.put({'log_type': 'INFO',
+            self.logger_queue.put({'name': 'MQTTLoopData',
+                                   'log_type': 'INFO',
                                    'log_message': "MQTTLoopData plugin not enabled, exiting"})
             return
 
@@ -93,7 +94,8 @@ class MQTTLoopData(LoopData):
         self.loop_processor.accumulators = self.setup_accumulators()
 
     def loginfo(self, msg):
-        self.logger_queue.put({'log_type': 'INFO',
+        self.logger_queue.put({'name': 'MQTTLoopData',
+                               'log_type': 'INFO',
                                'log_message': msg})
 
     def pre_loop(self, _event):
@@ -154,7 +156,8 @@ class MQTTLoopData(LoopData):
                 # Unreachable: is_continuous_period admits only the three
                 # forms above, and union_obstypes re-keys 'trend'.  Skip
                 # rather than carry the previous iteration's window.
-                self.logger_queue.put({'log_type': 'DEBUG',
+                self.logger_queue.put({'name': 'MQTTLoopData',
+                                       'log_type': 'DEBUG',
                                        'log_message': f'No window for continuous period {per}, skipping it.'})
                 continue
 
@@ -226,8 +229,9 @@ class MQTTLoopData(LoopData):
             # reset the loop_data dictionary for the new packet/record processing
             self.loop_data = None
         else:
-            self.logger_queue.put({'log_type': 'DEBUG',
-                                  'log_message': f"Queue aize of {data['queue_size']} is greater than maximum allowed, {self.max_queue_size}"})
+            self.logger_queue.put({'name': 'MQTTLoopData',
+                                   'log_type': 'DEBUG',
+                                   'log_message': f"Queue aize of {data['queue_size']} is greater than maximum allowed, {self.max_queue_size}"})
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
@@ -241,5 +245,6 @@ class MQTTLoopData(LoopData):
             if self.topics[topic]['report'] in self.loop_data:
                 data.update(self.loop_data[self.topics[topic]['report']])
             else:
-                self.logger_queue.put({'log_type': 'ERROR',
+                self.logger_queue.put({'name': 'MQTTLoopData',
+                                       'log_type': 'ERROR',
                                        'log_message': f"{self.topics[topic]['report']} no found in loop data."})
