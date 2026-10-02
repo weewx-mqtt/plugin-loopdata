@@ -100,7 +100,7 @@ class TestMQTTLoopData(unittest.TestCase):
             },
         }
 
-        SUT = user.mqttloopdata.MQTTLoopData(mock_logger_queue, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
+        SUT = user.mqttloopdata.MQTTLoopData(mock_logger_queue, None, None, plugin_dict, None, None, configobj.ConfigObj(weewx_dict))
         pkt = {
             'dateTime': time.time(),
             'usUnits': 1,

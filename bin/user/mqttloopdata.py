@@ -27,7 +27,7 @@ class log:  # pylint: disable=invalid-name
 class MQTTLoopData(LoopData):
     """ Create loop data for MQTTPublish. """
     # def __init__(self, engine, config_dict):
-    def __init__(self, logger_queue, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
+    def __init__(self, logger_queue, _monitor_config, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
         # ToDo: Currently only support publishing json - need to add a check
         self.enabled = to_bool(plugin_dict.get('enable', True))
