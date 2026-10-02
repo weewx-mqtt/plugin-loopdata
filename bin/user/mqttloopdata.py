@@ -27,11 +27,12 @@ class log:  # pylint: disable=invalid-name
 class MQTTLoopData(LoopData):
     """ Create loop data for MQTTPublish. """
     # def __init__(self, engine, config_dict):
-    def __init__(self, logger_queue, _monitor_config, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
+    def __init__(self, logger_queue, monitor_config, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
 
         # ToDo: Currently only support publishing json - need to add a check
         self.enabled = to_bool(plugin_dict.get('enable', True))
         self.logger_queue = logger_queue
+        self.monitor_config = monitor_config
         self.name = f"{self.__class__.__name__}-{threading.get_native_id()}"
 
         if not self.enabled:
@@ -233,8 +234,8 @@ class MQTTLoopData(LoopData):
             self.loop_data = None
         else:
             self.logger_queue.put({'name': self.name,
-                                   'log_type': 'DEBUG',
-                                   'log_message': f"Queue aize of {data['queue_size']} is greater than maximum allowed, {self.max_queue_size}"})
+                                   'log_type': self.monitor_config['monitor_queue'],
+                                   'log_message': f"monitor: Queue aize of {data['queue_size']} is greater than maximum allowed, {self.max_queue_size}"})
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
