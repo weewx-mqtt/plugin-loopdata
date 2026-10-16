@@ -1,5 +1,4 @@
-name: Keep versions up to date
-
+name: Keep the versions up-to-date
 on:
   release:
     types:
@@ -7,4 +6,4 @@ on:
 
 jobs:
   version:
-    uses: ./.github/workflows/versioning.yml
+    uses: weewx-extensions/development-tools/.github/workflows/versioning.yml@latest
