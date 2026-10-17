@@ -31,7 +31,7 @@ class log:  # pylint: disable=invalid-name,too-few-public-methods
     """ For compatability and maintability withh weewx-loopdata. """
     info = None
 
-class MQTTLoopData(LoopData):
+class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
     """ Create loop data for MQTTPublish. """
     # def __init__(self, engine, config_dict):
     def __init__(self, logger_queue, monitor_config, _name, plugin_dict, _mqtt_dict, _topics, weewx_dict):
@@ -54,24 +54,7 @@ class MQTTLoopData(LoopData):
         self.simple_cache = {}
         user.loopdata.log.info = self.loginfo  # pylint: disable=no-member
 
-        config_dict = weeutil.config.deep_copy(weewx_dict['config_dict'])
-        config_dict['LoopData'] = {}
-        config_dict['LoopData'] = weeutil.config.deep_copy(config_dict['MQTTLoopData'])
-        # Rsync functionality not supported by MQTTLoopData
-        config_dict['LoopData']['RsyncSpec'] = {
-            'enable': False,
-            'compress': False,
-            'log_success': False,
-        }
-
-        reports = {}
-        reports['LoopDataReport'] = 'dummy'
-        for topic in self.topics:
-            reports[self.topics[topic]['report']] = topic
-
-        for report in list(config_dict['StdReport'].sections):
-            if report not in reports:
-                config_dict['StdReport'].pop(report)
+        config_dict = self._build_config_dict(weewx_dict)
 
         # Check if the data dir exists
         # If it does not exist, LoopData creates it
@@ -105,6 +88,29 @@ class MQTTLoopData(LoopData):
         # We are running in a separate thread, so no need for another one to do the 'real' work.
         self.loop_processor = LoopProcessor(self.cfg)
         self.loop_processor.accumulators = self.setup_accumulators()
+
+    def _build_config_dict(self, weewx_dict):
+        """ Copy weewx.conf's LoopData/MQTTLoopData config, keeping only the reports the topics use. """
+        config_dict = weeutil.config.deep_copy(weewx_dict['config_dict'])
+        config_dict['LoopData'] = {}
+        config_dict['LoopData'] = weeutil.config.deep_copy(config_dict['MQTTLoopData'])
+        # Rsync functionality not supported by MQTTLoopData
+        config_dict['LoopData']['RsyncSpec'] = {
+            'enable': False,
+            'compress': False,
+            'log_success': False,
+        }
+
+        reports = {}
+        reports['LoopDataReport'] = 'dummy'
+        for topic in self.topics:
+            reports[self.topics[topic]['report']] = topic
+
+        for report in list(config_dict['StdReport'].sections):
+            if report not in reports:
+                config_dict['StdReport'].pop(report)
+
+        return config_dict
 
     def loginfo(self, msg):
         """ Put an INFO message on the plugin's log queue. """
