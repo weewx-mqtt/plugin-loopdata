@@ -12,7 +12,6 @@ jobs:
       #package-list: 'mosquitto'
       weewx-extension: 'https://github.com/chaunceygardiner/weewx-loopdata/'
       # weewx-extension-ver: 'master'
-      unit-test: false
       function-test: false
       integration-test: true
       e2e-test: false
