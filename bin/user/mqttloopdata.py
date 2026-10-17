@@ -3,6 +3,13 @@
 #
 #    See the file LICENSE.txt for your full rights.
 
+"""Loop data for MQTTPublish, built on weewx-loopdata's LoopData.
+
+MQTTLoopData drives weewx-loopdata's accumulator and renderer pipeline from
+MQTTPublish's callbacks, and routes loopdata's log output through the
+plugin's log queue.
+"""
+
 import copy
 import pathlib
 import sys
@@ -15,7 +22,7 @@ import weewx
 import weeutil
 from weeutil.weeutil import to_bool, to_int
 
-import user.loopdata
+import user.loopdata  # pylint: disable=import-error,no-name-in-module
 from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
 
 VERSION = "0.1.0-rc01"
@@ -45,7 +52,7 @@ class MQTTLoopData(LoopData):
         self.topics = plugin_dict['topics']
         log.info = self.loginfo
         self.simple_cache = {}
-        user.loopdata.log.info = self.loginfo
+        user.loopdata.log.info = self.loginfo  # pylint: disable=no-member
 
         config_dict = weeutil.config.deep_copy(weewx_dict['config_dict'])
         config_dict['LoopData'] = {}
@@ -100,6 +107,7 @@ class MQTTLoopData(LoopData):
         self.loop_processor.accumulators = self.setup_accumulators()
 
     def loginfo(self, msg):
+        """ Put an INFO message on the plugin's log queue. """
         self.logger_queue.put({'name': self.name,
                                'log_type': 'INFO',
                                'log_message': msg})
@@ -138,7 +146,8 @@ class MQTTLoopData(LoopData):
         alltime_accum, self.cfg.obstypes.alltime = LoopData.create_alltime_accum(
             self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.alltime, day_accum, dbm)
         rainyear_accum, self.cfg.obstypes.rainyear = LoopData.create_rainyear_accum(
-            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.rainyear, pkt_time, self.cfg.rainyear_start, day_accum, dbm)
+            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.rainyear,
+            pkt_time, self.cfg.rainyear_start, day_accum, dbm)
         year_accum, self.cfg.obstypes.year = LoopData.create_year_accum(
             self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.year, pkt_time, day_accum, dbm)
         month_accum, self.cfg.obstypes.month = LoopData.create_month_accum(
@@ -237,7 +246,8 @@ class MQTTLoopData(LoopData):
         else:
             self.logger_queue.put({'name': self.name,
                                    'log_type': self.monitor_config['monitor_queue'],
-                                   'log_message': f"monitor: Queue aize of {data['queue_size']} is greater than maximum allowed, {self.max_queue_size}"})
+                                   'log_message': f"monitor: Queue size of {data['queue_size']} "
+                                                  f"is greater than maximum allowed, {self.max_queue_size}"})
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
