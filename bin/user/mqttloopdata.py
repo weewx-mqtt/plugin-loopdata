@@ -126,7 +126,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
         """ Data is no longer 'retrieved' from WeeWX pipeline. """
         return
 
-    def setup_accumulators(self):
+    def setup_accumulators(self):  # noqa: CCR001
         """ This code is 'lifted' from new_loop. """
         # Copied from weewx-loopdata; kept as-is.
         # pylint: disable=protected-access,too-many-locals
