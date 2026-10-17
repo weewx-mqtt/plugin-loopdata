@@ -128,7 +128,8 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
 
     def setup_accumulators(self):
         """ This code is 'lifted' from new_loop. """
-        # pylint: disable=protected-access
+        # Copied from weewx-loopdata; kept as-is.
+        # pylint: disable=protected-access,too-many-locals
         binder = weewx.manager.DBBinder(self.config_dict)
         binding = self.config_dict.get('StdReport')['data_binding']
         dbm = binder.get_manager(binding)
