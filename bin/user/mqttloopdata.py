@@ -89,7 +89,9 @@ class MQTTLoopData(LoopData):
             try:
                 dir_path.rmdir()
             except OSError:
-                self.logger.logerr("Data directory is not empty or does not exist.")
+                self.logger_queue.put({'name': self.name,
+                                       'log_type': 'ERROR',
+                                       'log_message': "Data directory is not empty or does not exist."})
 
         self.loop_data = None
 
