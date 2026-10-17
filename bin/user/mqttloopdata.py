@@ -152,8 +152,8 @@ class MQTTLoopData(LoopData):
         # Create continuous accums
         continuous_accums: Dict[str, ContinuousAccum] = {}
         for per, obstypes in self.cfg.obstypes.continuous.items():
-            if per == 'trend':
-                timelength = self.cfg.time_delta
+            if LoopData.is_trend_key(per):
+                timelength = LoopData.trend_key_seconds(per)
             elif LoopData.is_hour_period(per):
                 timelength = int(per[:-1])*3600
             elif LoopData.is_minute_period(per):
