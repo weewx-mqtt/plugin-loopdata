@@ -27,7 +27,7 @@ from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor
 
 VERSION = "0.1.0-rc01"
 
-class log:  # pylint: disable=invalid-name
+class log:  # pylint: disable=invalid-name,too-few-public-methods
     """ For compatability and maintability withh weewx-loopdata. """
     info = None
 
