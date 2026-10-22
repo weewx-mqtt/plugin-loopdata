@@ -18,6 +18,7 @@ import mock
 import configobj
 
 import user.mqttloopdata
+import user.mqttpublish
 
 # Due to importing user.loopdata, this project has a different 'user' directory (see .env).
 # Therefore will dynamically load 'helpers'.
@@ -54,9 +55,8 @@ class TestInit(unittest.TestCase):
         self.assertFalse(SUT.enabled)
         self.assertEqual(SUT.name, f"MQTTLoopData-{threading.get_native_id()}")
         self.assertEqual(logger_queue.get_nowait(),
-                         {'name': SUT.name,
-                          'log_type': 'INFO',
-                          'log_message': "MQTTLoopData plugin not enabled, exiting"})
+                         user.mqttpublish.Logger.create_entry(
+                             SUT.name, 'INFO', None, "MQTTLoopData plugin not enabled, exiting"))
         self.assertTrue(logger_queue.empty())
         # The heavyweight setup is skipped entirely.
         self.assertFalse(hasattr(SUT, 'topics'))
@@ -138,9 +138,9 @@ class TestOnWeewxData(unittest.TestCase):
         msg = SUT.logger_queue.get_nowait()
         self.assertEqual(msg['name'], 'MQTTLoopData-test')
         self.assertEqual(msg['log_type'], 'WARNING')  # monitor_config['monitor_queue']
-        self.assertTrue(msg['log_message'].startswith('monitor:'))
-        self.assertIn('11', msg['log_message'])
-        self.assertIn('10', msg['log_message'])
+        self.assertTrue(msg['msg_text'].startswith('monitor:'))
+        self.assertIn('11', msg['msg_text'])
+        self.assertIn('10', msg['msg_text'])
         self.assertTrue(SUT.logger_queue.empty())
 
 
@@ -198,8 +198,8 @@ class TestUpdateRecord(unittest.TestCase):
         self.assertEqual(data, {'dateTime': 1000})
         msg = SUT.logger_queue.get_nowait()
         self.assertEqual(msg['log_type'], 'ERROR')
-        self.assertIn('NoSuchReport', msg['log_message'])
-        self.assertIn('in loop data', msg['log_message'])
+        self.assertIn('NoSuchReport', msg['msg_text'])
+        self.assertIn('in loop data', msg['msg_text'])
         self.assertTrue(SUT.logger_queue.empty())
 
     def test_queue_reset_triggers_regeneration_for_next_packet(self):
@@ -228,9 +228,7 @@ class TestSimpleMethods(unittest.TestCase):
         SUT.loginfo('hello')
 
         self.assertEqual(SUT.logger_queue.get_nowait(),
-                         {'name': 'MQTTLoopData-test',
-                          'log_type': 'INFO',
-                          'log_message': 'hello'})
+                         user.mqttpublish.Logger.create_entry('MQTTLoopData-test', 'INFO', None, 'hello'))
         self.assertTrue(SUT.logger_queue.empty())
 
     def test_pre_loop_and_new_loop_are_noops(self):
