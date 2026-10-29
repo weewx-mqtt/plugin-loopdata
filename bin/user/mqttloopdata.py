@@ -13,7 +13,6 @@ plugin's log queue.
 import copy
 import pathlib
 import sys
-import threading
 import time
 
 from typing import Dict
@@ -41,7 +40,8 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
         self.enabled = to_bool(plugin_dict.get('enable', True))
         self.logger_queue = logger_queue
         self.monitor_config = monitor_config
-        self.name = f"{self.__class__.__name__}-{threading.get_native_id()}"
+        self.name = self.__class__.__name__
+        self.loginfo(f"MQTTLoopData version: {VERSION}.")
 
         if not self.enabled:
             self.logger_queue.put(user.mqttcommon.Logger.create_entry(
@@ -248,8 +248,8 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
             self.loop_data = None
         else:
             self.logger_queue.put(user.mqttcommon.Logger.create_entry(self.name, self.monitor_config['monitor_queue'], None,
-                                                                       (f"monitor: Queue size of {data['queue_size']} "
-                                                                        f"is greater than maximum allowed, {self.max_queue_size}")))
+                                                                      (f"monitor: Queue size of {data['queue_size']} "
+                                                                       f"is greater than maximum allowed, {self.max_queue_size}")))
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):
         """ Run code when MQTT record is updated. """
@@ -264,4 +264,4 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
                 data.update(self.loop_data[self.topics[topic]['report']])
             else:
                 self.logger_queue.put(user.mqttcommon.Logger.create_entry(
-                    self.name, 'ERROR', None, f"{self.topics[topic]['report']} no found in loop data."))
+                    self.name, 'ERROR', None, f"{self.topics[topic]['report']} not found in loop data."))

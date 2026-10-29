@@ -10,7 +10,6 @@
 import importlib.util
 import pathlib
 import queue
-import threading
 import unittest
 
 import mock
@@ -18,7 +17,7 @@ import mock
 import configobj
 
 import user.mqttloopdata
-import user.mqttpublish
+import user.mqttcommon
 
 # Due to importing user.loopdata, this project has a different 'user' directory (see .env).
 # Therefore will dynamically load 'helpers'.
@@ -53,9 +52,12 @@ class TestInit(unittest.TestCase):
         SUT = user.mqttloopdata.MQTTLoopData(logger_queue, None, None, {'enable': False}, None, None, None)
 
         self.assertFalse(SUT.enabled)
-        self.assertEqual(SUT.name, f"MQTTLoopData-{threading.get_native_id()}")
+        self.assertEqual(SUT.name, 'MQTTLoopData')
         self.assertEqual(logger_queue.get_nowait(),
-                         user.mqttpublish.Logger.create_entry(
+                         user.mqttcommon.Logger.create_entry(
+                             SUT.name, 'INFO', None, f"MQTTLoopData version: {user.mqttloopdata.VERSION}."))
+        self.assertEqual(logger_queue.get_nowait(),
+                         user.mqttcommon.Logger.create_entry(
                              SUT.name, 'INFO', None, "MQTTLoopData plugin not enabled, exiting"))
         self.assertTrue(logger_queue.empty())
         # The heavyweight setup is skipped entirely.
@@ -228,7 +230,7 @@ class TestSimpleMethods(unittest.TestCase):
         SUT.loginfo('hello')
 
         self.assertEqual(SUT.logger_queue.get_nowait(),
-                         user.mqttpublish.Logger.create_entry('MQTTLoopData-test', 'INFO', None, 'hello'))
+                         user.mqttcommon.Logger.create_entry('MQTTLoopData-test', 'INFO', None, 'hello'))
         self.assertTrue(SUT.logger_queue.empty())
 
     def test_pre_loop_and_new_loop_are_noops(self):
