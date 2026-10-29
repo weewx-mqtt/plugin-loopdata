@@ -44,7 +44,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
         self.name = f"{self.__class__.__name__}-{threading.get_native_id()}"
 
         if not self.enabled:
-            self.logger_queue.put(user.mqttpublish.Logger.create_entry(
+            self.logger_queue.put(user.mqttcommon.Logger.create_entry(
                 self.name, 'INFO', None, "MQTTLoopData plugin not enabled, exiting"))
             return
 
@@ -79,7 +79,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
             try:
                 dir_path.rmdir()
             except OSError:
-                self.logger_queue.put(user.mqttpublish.Logger.create_entry(
+                self.logger_queue.put(user.mqttcommon.Logger.create_entry(
                     self.name, 'ERROR', None, "Data directory is not empty or does not exist."))
 
         self.loop_data = None
@@ -113,7 +113,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
 
     def loginfo(self, msg):
         """ Put an INFO message on the plugin's log queue. """
-        self.logger_queue.put(user.mqttpublish.Logger.create_entry(self.name, 'INFO', None, msg))
+        self.logger_queue.put(user.mqttcommon.Logger.create_entry(self.name, 'INFO', None, msg))
 
     def pre_loop(self, _event):
         """ Data is no longer 'retrieved' from WeeWX pipeline. """
@@ -175,7 +175,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
                 # Unreachable: is_continuous_period admits only the three
                 # forms above, and union_obstypes re-keys 'trend'.  Skip
                 # rather than carry the previous iteration's window.
-                self.logger_queue.put(user.mqttpublish.Logger.create_entry(
+                self.logger_queue.put(user.mqttcommon.Logger.create_entry(
                     self.name, 'DEBUG', None, f'No window for continuous period {per}, skipping it.'))
                 continue
 
@@ -247,7 +247,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
             # reset the loop_data dictionary for the new packet/record processing
             self.loop_data = None
         else:
-            self.logger_queue.put(user.mqttpublish.Logger.create_entry(self.name, self.monitor_config['monitor_queue'], None,
+            self.logger_queue.put(user.mqttcommon.Logger.create_entry(self.name, self.monitor_config['monitor_queue'], None,
                                                                        (f"monitor: Queue size of {data['queue_size']} "
                                                                         f"is greater than maximum allowed, {self.max_queue_size}")))
 
@@ -263,5 +263,5 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
             if self.topics[topic]['report'] in self.loop_data:
                 data.update(self.loop_data[self.topics[topic]['report']])
             else:
-                self.logger_queue.put(user.mqttpublish.Logger.create_entry(
+                self.logger_queue.put(user.mqttcommon.Logger.create_entry(
                     self.name, 'ERROR', None, f"{self.topics[topic]['report']} no found in loop data."))
