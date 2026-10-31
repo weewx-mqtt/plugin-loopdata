@@ -3,5 +3,16 @@ export WEEWX_MODULE_NAME=mqttloopdata
 export WEEWX_PYENV_VERSION='3.10'
 
 export WEEWX_TOOL_PATH=~/weewx_dev/weewx-extensions/development-tools/tools
-export WEEWX_PYTHONPATH=bin:../weewx/src:~/weewx-data/bin
+
+# The workflow only runs these suites.
+export WEEWX_TEST_SUITES='unit integ'
+
+# weewx from PyPI, like CI; the sibling checkout until it is installed.
+# The station's user package provides weewx-loopdata and mqttcommon.
+if PYTHONPATH= python3 -c 'import weewx' >/dev/null 2>&1; then
+    export WEEWX_PYTHONPATH=bin:~/weewx-data/bin
+else
+    export WEEWX_PYTHONPATH=bin:../weewx/src:~/weewx-data/bin
+fi
+
 PATH=$WEEWX_TOOL_PATH:$PATH

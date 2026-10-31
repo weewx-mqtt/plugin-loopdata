@@ -1,2 +1,4 @@
 **/__pycache__/
 act-artifacts/
+results/
+coverage.xml
