@@ -10,10 +10,11 @@ jobs:
     uses: weewx-extensions/development-tools/.github/workflows/analyze-test.yml@v6
     with:
       module-name: 'mqttloopdata'
-      #pip-list: 'paho-mqtt'
+      pip-list: 'paho-mqtt'
       #package-list: 'mosquitto'
-      weewx-extension: 'https://github.com/chaunceygardiner/weewx-loopdata/'
-      # weewx-extension-ver: 'master'
+      weewx-extensions: |
+        https://github.com/chaunceygardiner/weewx-loopdata/
+        https://github.com/weewx-mqtt/publish/
       function-test: false
       integration-test: true
       e2e-test: false
