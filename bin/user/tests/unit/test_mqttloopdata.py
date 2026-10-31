@@ -77,8 +77,7 @@ class TestInit(unittest.TestCase):
         self.assertEqual(ctx.exception.args, ('MQTTLoopData',))
 
     def test_topic_without_report_raises_keyerror(self):
-        # Every [[topics]] stanza needs a report option; without it the plugin
-        # cannot map the topic's record to its loop data.
+        # A [[topics]] stanza without 'report' cannot map its record to loop data.
         weewx_dict = {'config_dict': configobj.ConfigObj({
             'MQTTLoopData': {},
             'StdReport': {'LoopDataReport': {}},

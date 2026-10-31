@@ -56,10 +56,8 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
 
         config_dict = self._build_config_dict(weewx_dict)
 
-        # Check if the data dir exists
-        # If it does not exist, LoopData creates it
-        # But, we don't need it, so we will delete it after it is created
-        # Not sure it is worth the complexity
+        # LoopData creates the data directory if it is missing, but nothing is
+        # written, so it is discarded afterwards.
         loop_config_dict         = config_dict.get('LoopData', {})
         file_spec_dict           = loop_config_dict.get('FileSpec', {})
         target_report_dict = LoopData.get_target_report_dict(config_dict, 'LoopDataReport')
@@ -69,8 +67,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
 
         super().__init__(weewx_dict['engine'], config_dict)
 
-        # Since we do not write any data, we will delete the temporary file
-        # I believe in LoopData V7, it cleans up after itself.
+        # Nothing is written, so remove the temporary file LoopData created.
         file = pathlib.Path(self.cfg.tmpname)
         file.unlink(missing_ok=True)
 
@@ -184,8 +181,7 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
             if cont_accum:
                 continuous_accums[per], self.cfg.obstypes.continuous[per]  = cont_accum, obstypes
 
-        # Create windrose accums (span periods seeded by one SQL GROUP BY
-        # each, continuous periods by archive replay).
+        # Windrose accums: span periods from SQL, continuous by archive replay.
         windrose_span_accums, windrose_continuous_accums = \
             LoopData.create_windrose_accums(self.cfg, dbm, pkt_time)
 
