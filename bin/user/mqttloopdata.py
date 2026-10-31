@@ -172,9 +172,8 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
             elif LoopData.is_minute_period(per):
                 timelength = int(per[:-1])*60
             else:
-                # Unreachable: is_continuous_period admits only the three
-                # forms above, and union_obstypes re-keys 'trend'.  Skip
-                # rather than carry the previous iteration's window.
+                # Unreachable: is_continuous_period admits only the forms above and
+                # union_obstypes re-keys 'trend'; skip rather than carry the window.
                 self.logger_queue.put(user.mqttcommon.Logger.create_entry(
                     self.name, 'DEBUG', None, f'No window for continuous period {per}, skipping it.'))
                 continue
