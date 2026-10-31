@@ -22,6 +22,7 @@ import weeutil
 from weeutil.weeutil import to_bool, to_int
 
 import user.loopdata  # pylint: disable=import-error,no-name-in-module
+import user.mqttcommon  # pylint: disable=import-error,no-name-in-module
 from user.loopdata import Accumulators, ContinuousAccum, LoopData, LoopProcessor  # pylint: disable=import-error,no-name-in-module
 
 VERSION = "0.1.0-rc01"
