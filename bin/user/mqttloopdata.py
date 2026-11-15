@@ -238,12 +238,15 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
     def on_weewx_data(self, data):
         """ Run when MQTTPublish receives a loop packet or archive record event from WeeWX. """
 
-        if data['queue_size'] <= self.max_queue_size:
+        queue_size = data['queue_size']
+        # None when the platform cannot report the size, as macOS cannot. Treat that as
+        # no backlog: skipping packets needs a size, and there is none to compare.
+        if queue_size is None or queue_size <= self.max_queue_size:
             # reset the loop_data dictionary for the new packet/record processing
             self.loop_data = None
         else:
             self.logger_queue.put(user.mqttcommon.Logger.create_entry(self.name, self.monitor_config['monitor_queue'], None,
-                                                                      (f"monitor: Queue size of {data['queue_size']} "
+                                                                      (f"monitor: Queue size of {queue_size} "
                                                                        f"is greater than maximum allowed, {self.max_queue_size}")))
 
     def update_record(self, _mqtt_client, topic, data, _units, _qos, _retain):

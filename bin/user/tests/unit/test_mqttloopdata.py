@@ -127,6 +127,16 @@ class TestOnWeewxData(unittest.TestCase):
         self.assertIsNone(SUT.loop_data)
         self.assertTrue(SUT.logger_queue.empty())
 
+    def test_queue_size_unknown_resets_loop_data(self):
+        # Publish hands over None where the platform cannot report the queue size.
+        SUT = build_plugin(max_queue_size=10)
+        SUT.loop_data = {'LoopDataReport': {'outTemp': 70.1}}
+
+        SUT.on_weewx_data({'queue_size': None})
+
+        self.assertIsNone(SUT.loop_data)
+        self.assertTrue(SUT.logger_queue.empty())
+
     def test_queue_size_over_max_logs_monitor_and_keeps_loop_data(self):
         SUT = build_plugin(max_queue_size=10)
         loop_data = {'LoopDataReport': {'outTemp': 70.1}}
