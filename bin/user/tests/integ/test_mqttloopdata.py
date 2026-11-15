@@ -15,10 +15,18 @@ import importlib
 import pathlib
 import time
 
+import weewx.almanac
+
 import user.mqttloopdata
 
 # Due to a bug in weewx-loopdata, this test will fail with loopdata 7.4 and WeeWX < 5.3
 # It was fixed in loopdata 7.4.1
+
+# The fields below include almanac(horizon=-6).sun(use_center=1).rise/set, the extended
+# almanac, which only PyEphem provides. It is a weewx dependency, so 'pip install weewx'
+# brings it; without it those fields evaluate to no value, loopdata omits them, and the
+# test would fail on a KeyError while assembling the expected packet.
+EXTENDED_ALMANAC = weewx.almanac.Almanac(0, 0.0, 0.0).hasExtras
 
 # Due to importing user.loopdata, this project has a different 'user' directory (see .env).
 # Therefore will dynamically load 'user.helpers'.
@@ -26,6 +34,8 @@ helpers_spec = importlib.util.spec_from_file_location("helpers", pathlib.Path(__
 helpers = importlib.util.module_from_spec(helpers_spec)
 helpers_spec.loader.exec_module(helpers)
 
+@unittest.skipUnless(EXTENDED_ALMANAC,
+                     'the extended almanac needs PyEphem: pip install ephem, or pip install weewx')
 class TestMQTTLoopData(unittest.TestCase):
     def test_update_packet(self):
         self.maxDiff = None
