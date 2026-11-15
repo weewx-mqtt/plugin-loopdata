@@ -248,5 +248,56 @@ class TestSimpleMethods(unittest.TestCase):
         self.assertIsNone(SUT.new_loop(None))
 
 
+class TestCreateAccum(unittest.TestCase):
+    """ loopdata 8 dropped archive_interval from its create_*_accum helpers; 7.x and
+        early 8.x require it after the unit system. """
+
+    def test_archive_interval_is_passed_where_the_signature_takes_it(self):
+        # pylint: disable=unused-argument
+        calls = []
+
+        def creator(unit_system, archive_interval, obstypes, day_accum, dbm):
+            calls.append((unit_system, archive_interval, obstypes))
+            return 'accum', obstypes
+
+        cfg = mock.Mock(unit_system=1, archive_interval=300)
+
+        result = user.mqttloopdata.create_accum(creator, cfg, {'outTemp'}, 'day', 'dbm')
+
+        self.assertEqual(calls, [(1, 300, {'outTemp'})])
+        self.assertEqual(result, ('accum', {'outTemp'}))
+
+    def test_archive_interval_is_omitted_where_the_signature_dropped_it(self):
+        # pylint: disable=unused-argument
+        calls = []
+
+        def creator(unit_system, obstypes, day_accum, dbm):
+            calls.append((unit_system, obstypes))
+            return 'accum', obstypes
+
+        cfg = mock.Mock(unit_system=1, spec=['unit_system'])
+
+        result = user.mqttloopdata.create_accum(creator, cfg, {'outTemp'}, 'day', 'dbm')
+
+        self.assertEqual(calls, [(1, {'outTemp'})])
+        self.assertEqual(result, ('accum', {'outTemp'}))
+
+    def test_named_creators_get_the_name_before_the_unit_system(self):
+        # pylint: disable=unused-argument
+        calls = []
+
+        def creator(name, unit_system, archive_interval, obstypes, timelength, day_accum, dbm, archive_delay=15):
+            calls.append((name, unit_system, archive_interval, archive_delay))
+            return 'accum', obstypes
+
+        cfg = mock.Mock(unit_system=1, archive_interval=300)
+
+        result = user.mqttloopdata.create_accum(creator, cfg, {'outTemp'}, 600, 'day', 'dbm',
+                                                name='trend', archive_delay=30)
+
+        self.assertEqual(calls, [('trend', 1, 300, 30)])
+        self.assertEqual(result, ('accum', {'outTemp'}))
+
+
 if __name__ == '__main__':
     helpers.run_tests()

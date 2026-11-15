@@ -11,6 +11,7 @@ plugin's log queue.
 """
 
 import copy
+import inspect
 import pathlib
 import sys
 import time
@@ -30,6 +31,18 @@ VERSION = "0.1.0-rc01"
 class log:  # pylint: disable=invalid-name,too-few-public-methods
     """ For compatability and maintability withh weewx-loopdata. """
     info = None
+
+def create_accum(creator, cfg, *args, name=None, **kwargs):
+    """ Call one of weewx-loopdata's create_*_accum helpers.
+
+        loopdata 8 dropped their archive_interval argument, which 7.x and early 8.x take
+        after the unit system. Ask the installed version's own signature, so one plugin
+        serves both: the accumulators themselves are identical either way. """
+    if 'archive_interval' in inspect.signature(creator).parameters:
+        args = (getattr(cfg, 'archive_interval', 0),) + args
+    if name is not None:
+        return creator(name, cfg.unit_system, *args, **kwargs)
+    return creator(cfg.unit_system, *args, **kwargs)
 
 class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
     """ Create loop data for MQTTPublish. """
@@ -122,7 +135,9 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
 
     def setup_accumulators(self):  # noqa: CCR001
         """ This code is 'lifted' from new_loop. """
-        # Copied from weewx-loopdata; kept as-is.
+        # Copied from weewx-loopdata, except that the create_*_accum calls go through
+        # create_accum, which supplies the archive_interval loopdata 8 dropped only
+        # where the installed version still takes it.
         # pylint: disable=protected-access,too-many-locals
         binder = weewx.manager.DBBinder(self.config_dict)
         binding = self.config_dict.get('StdReport')['data_binding']
@@ -144,19 +159,20 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
             day_accum.set_stats(k, day_summary[k].getStatsTuple())
 
         # Create fixed accums
-        alltime_accum, self.cfg.obstypes.alltime = LoopData.create_alltime_accum(
-            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.alltime, day_accum, dbm)
-        rainyear_accum, self.cfg.obstypes.rainyear = LoopData.create_rainyear_accum(
-            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.rainyear,
+        alltime_accum, self.cfg.obstypes.alltime = create_accum(
+            LoopData.create_alltime_accum, self.cfg, self.cfg.obstypes.alltime, day_accum, dbm)
+        rainyear_accum, self.cfg.obstypes.rainyear = create_accum(
+            LoopData.create_rainyear_accum, self.cfg, self.cfg.obstypes.rainyear,
             pkt_time, self.cfg.rainyear_start, day_accum, dbm)
-        year_accum, self.cfg.obstypes.year = LoopData.create_year_accum(
-            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.year, pkt_time, day_accum, dbm)
-        month_accum, self.cfg.obstypes.month = LoopData.create_month_accum(
-            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.month, pkt_time, day_accum, dbm)
-        week_accum, self.cfg.obstypes.week = LoopData.create_week_accum(
-            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.week, pkt_time, self.cfg.week_start, day_accum, dbm)
-        hour_accum, self.cfg.obstypes.hour = LoopData.create_hour_accum(
-            self.cfg.unit_system, self.cfg.archive_interval, self.cfg.obstypes.hour, pkt_time, day_accum, dbm,
+        year_accum, self.cfg.obstypes.year = create_accum(
+            LoopData.create_year_accum, self.cfg, self.cfg.obstypes.year, pkt_time, day_accum, dbm)
+        month_accum, self.cfg.obstypes.month = create_accum(
+            LoopData.create_month_accum, self.cfg, self.cfg.obstypes.month, pkt_time, day_accum, dbm)
+        week_accum, self.cfg.obstypes.week = create_accum(
+            LoopData.create_week_accum, self.cfg, self.cfg.obstypes.week, pkt_time,
+            self.cfg.week_start, day_accum, dbm)
+        hour_accum, self.cfg.obstypes.hour = create_accum(
+            LoopData.create_hour_accum, self.cfg, self.cfg.obstypes.hour, pkt_time, day_accum, dbm,
             archive_delay=self.cfg.archive_delay)
 
         # Create continuous accums
@@ -175,9 +191,9 @@ class MQTTLoopData(LoopData):  # pylint: disable=too-many-instance-attributes
                     self.name, 'DEBUG', None, f'No window for continuous period {per}, skipping it.'))
                 continue
 
-            cont_accum, obstypes = LoopData.create_continuous_accum(
-                per, self.cfg.unit_system, self.cfg.archive_interval, obstypes, timelength, day_accum, dbm,
-                archive_delay=self.cfg.archive_delay)
+            cont_accum, obstypes = create_accum(
+                LoopData.create_continuous_accum, self.cfg, obstypes, timelength, day_accum, dbm,
+                name=per, archive_delay=self.cfg.archive_delay)
             if cont_accum:
                 continuous_accums[per], self.cfg.obstypes.continuous[per]  = cont_accum, obstypes
 
