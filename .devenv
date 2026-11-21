@@ -1,21 +1,11 @@
-# Do not inherit settings from another repository's .devenv.
-unset WEEWX_LINT_PATHS WEEWX_TEST_SUITES WEEWX_HTML WEEWX_RESULTS_DIR
+# Bootstrap: the shared settings live in the development-tools checkout.
+WEEWX_TOOL_PATH=${WEEWX_TOOL_PATH:-$HOME/weewx_code/weewx-extensions/development-tools/tools}
+. "${WEEWX_TOOL_PATH}/devenv.sh"
 
 export WEEWX_MODULE_NAME=mqttloopdata
-
-export WEEWX_PYENV_VERSION='3.10'
-
-export WEEWX_TOOL_PATH=~/weewx_code/weewx-extensions/development-tools/tools
 
 # The workflow only runs these suites.
 export WEEWX_TEST_SUITES='unit integ'
 
-# weewx from PyPI, like CI; the sibling checkout until it is installed.
 # The station's user package provides weewx-loopdata and mqttcommon.
-if PYTHONPATH= python3 -c 'import weewx' >/dev/null 2>&1; then
-    export WEEWX_PYTHONPATH=bin:~/weewx-data/bin
-else
-    export WEEWX_PYTHONPATH=bin:../weewx/src:~/weewx-data/bin
-fi
-
-PATH=$WEEWX_TOOL_PATH:$PATH
+export WEEWX_PYTHONPATH="${WEEWX_PYTHONPATH}:$HOME/weewx-data/bin"
